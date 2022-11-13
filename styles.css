@@ -1,0 +1,21 @@
+body{
+    background-color: black;
+    color: white;
+    font-family: Cascadia Code;
+}
+
+#interface{
+    display: flex;
+    justify-content: center;
+}
+
+#texte{
+    margin-right: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#score{
+    align-self: flex-end;
+}
