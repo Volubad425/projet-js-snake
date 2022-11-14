@@ -45,13 +45,21 @@ let direction = "DROITE";
 
 document.addEventListener('keydown',function(evt){
     if(evt.key === "ArrowDown"){
-        direction = "BAS";
+        if(direction != "HAUT"){
+            direction = "BAS";
+        }
     }else if(evt.key === "ArrowLeft"){
-        direction = "GAUCHE";
+        if(direction != "DROITE"){
+            direction = "GAUCHE";
+        }
     }else if(evt.key === "ArrowRight"){
-        direction = "DROITE";
+        if(direction != "GAUCHE"){
+            direction = "DROITE";
+        }
     }else if(evt.key === "ArrowUp"){
-        direction = "HAUT";
+        if(direction != "BAS"){
+            direction = "HAUT";
+        }
     }
 });
 function setWalls(){
@@ -82,13 +90,10 @@ function setFruit(){
     console.log(`grille[${fruit.y}][${fruit.x}]`);
 }
 
-function drawSnake(postete){
-    ctx.fillStyle = "yellow";
+function drawSnake(postete, couleur){
+    ctx.fillStyle = couleur;
     ctx.strokeStyle = "black";
-    let test = snake[0];
-    test.x = test.x + 1;
-    test.y = test.y + 1;
-    snake.push(test);
+    snake.push(postete);
     console.log(snake);
     snake.pop();
     console.log(snake);
@@ -101,14 +106,25 @@ function drawSnake(postete){
 
 function step(){
     setInterval(function(){
-        let test = snake[0];
-        test.x = test.x + 1;
-        test.y = test.y + 1;
-        drawSnake(test);
+        drawSnake(snake[0], "black");
+        if(direction === "DROITE"){
+            snake[0].x++;
+        }
+        else if(direction === "GAUCHE"){
+            snake[0].x--;
+        }
+        else if(direction === "HAUT"){
+            snake[0].y--;
+        }
+        else if(direction === "BAS"){
+            snake[0].y++;
+        }
+        console.log(direction);
+        drawSnake(snake[0], "yellow");
     },500);
 }
 
 setWalls();
 setFruit();
-drawSnake(tete);
+drawSnake(snake[0], "yellow");
 step();
