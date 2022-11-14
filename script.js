@@ -38,9 +38,22 @@ let grille = [
 ]
 
 let score = 0;
+let tete = {x: 2, y: 14};
 let snake = [{x: 2, y: 14}];
 let fruit = {x: null, y: null}
+let direction = "DROITE";
 
+document.addEventListener('keydown',function(evt){
+    if(evt.key === "ArrowDown"){
+        direction = "BAS";
+    }else if(evt.key === "ArrowLeft"){
+        direction = "GAUCHE";
+    }else if(evt.key === "ArrowRight"){
+        direction = "DROITE";
+    }else if(evt.key === "ArrowUp"){
+        direction = "HAUT";
+    }
+});
 function setWalls(){
     ctx.fillStyle = "greenyellow";
     ctx.strokeStyle = "black";
@@ -69,9 +82,16 @@ function setFruit(){
     console.log(`grille[${fruit.y}][${fruit.x}]`);
 }
 
-function drawSnake(){
+function drawSnake(postete){
     ctx.fillStyle = "yellow";
     ctx.strokeStyle = "black";
+    let test = snake[0];
+    test.x = test.x + 1;
+    test.y = test.y + 1;
+    snake.push(test);
+    console.log(snake);
+    snake.pop();
+    console.log(snake);
     for(const part of snake){
         grille[part.y][part.x] = "SNAKE";
         ctx.fillRect(long*part.x, larg*part.y, long, larg)
@@ -79,6 +99,16 @@ function drawSnake(){
     }
 }
 
+function step(){
+    setInterval(function(){
+        let test = snake[0];
+        test.x = test.x + 1;
+        test.y = test.y + 1;
+        drawSnake(test);
+    },500);
+}
+
 setWalls();
 setFruit();
-drawSnake();
+drawSnake(tete);
+step();
