@@ -68,12 +68,20 @@ function start(){
     }
 
     function drawSnake(){
+        let i = 0;
         ctx.fillStyle = "blue";
         for(const part of snake){
+            if(i % 2 == 0){
+                ctx.fillStyle = "blue";
+            }
+            else{
+                ctx.fillStyle = "yellow";
+            }
             if(part.x != null && part.y != null){
                 grille[part.y][part.x] = "SNAKE";
                 ctx.fillRect(tailleCarr*part.x, tailleCarr*part.y, tailleCarr, tailleCarr);
             }
+            i++;
         }
     }
 
@@ -147,7 +155,7 @@ function start(){
             if(collision()){
                 alert("Vous avez perdu")
                 clearInterval(interval);
-                ctx.clearRect(0, 0, 1800, 900)
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
                 start();
             }
             else{
