@@ -2,41 +2,15 @@ const canvas = document.getElementById("snake")
 const ctx = canvas.getContext("2d");
 const scoreText = document.getElementById("score");
 
-const long = 30;
-const larg = 30;
+const tailleCarr = 30;
 
-let grille = [
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
-]
+let grille = new Array(30);
+for(let i = 0; i < grille.length; i++){
+    grille[i] = new Array(60);
+    for(j = 0; j < grille[i].length; j++){
+        grille[i][j] = null;
+    }
+}
 
 let interval;
 let score = 0;
@@ -67,11 +41,11 @@ document.addEventListener('keyup',function(evt){
 
 function setWalls(){
     ctx.fillStyle = "green";
-    for(let i = 0; i < larg; i++){
-        for(let j = 0; j < long; j++){
-            if((i === 0 || i === long - 1) || (j === 0 || j === larg - 1)){
+    for(let i = 0; i < grille.length; i++){
+        for(let j = 0; j < grille[i].length; j++){
+            if((i === 0 || i === grille.length - 1) || (j === 0 || j === grille[i].length - 1)){
                 grille[i][j] = "WALL";
-                ctx.fillRect(long*j, larg*i, long, larg);
+                ctx.fillRect(tailleCarr*j, tailleCarr*i, tailleCarr, tailleCarr);
                 walls.push({x: j, y: i});
             }
         }
@@ -80,14 +54,14 @@ function setWalls(){
 
 function setFruit(){
     do{
-        fruit.x = Math.floor(Math.random() * (long - 0) + 0);
-        fruit.y = Math.floor(Math.random() * (larg - 0) + 0);
+        fruit.x = Math.floor(Math.random() * (grille[0].length - 0) + 0);
+        fruit.y = Math.floor(Math.random() * (grille.length - 0) + 0);
     }while(grille[fruit.y][fruit.x] === "SNAKE" || grille[fruit.y][fruit.x] === "WALL")
 
     grille[fruit.y][fruit.x] = "FRUIT";
 
     ctx.fillStyle = "red";
-    ctx.fillRect(long*fruit.x, larg*fruit.y, long, larg);
+    ctx.fillRect(tailleCarr*fruit.x, tailleCarr*fruit.y, tailleCarr, tailleCarr);
 }
 
 function drawSnake(){
@@ -95,7 +69,7 @@ function drawSnake(){
     for(const part of snake){
         if(part.x != null && part.y != null){
             grille[part.y][part.x] = "SNAKE";
-            ctx.fillRect(long*part.x, larg*part.y, long, larg);
+            ctx.fillRect(tailleCarr*part.x, tailleCarr*part.y, tailleCarr, tailleCarr);
         }
     }
 }
@@ -104,7 +78,7 @@ function clearSnake(){
     for(const part of snake){
         if(part.x != null && part.y != null){
             grille[part.y][part.x] = null;
-            ctx.clearRect(long*part.x, larg*part.y, long, larg)
+            ctx.clearRect(tailleCarr*part.x, tailleCarr*part.y, tailleCarr, tailleCarr)
         }
     }
 }
