@@ -1,3 +1,7 @@
+let highscore = 0;
+const highscoreText = document.getElementById("highscore");
+highscoreText.textContent = "Record : " + highscore;
+
 function start(){
     const canvas = document.getElementById("snake")
     const ctx = canvas.getContext("2d");
@@ -5,11 +9,11 @@ function start(){
 
     scoreText.textContent = "Score : 0";
 
-    const tailleCarr = 30;
+    const tailleCarr = 10;
 
-    let grille = new Array(30);
+    let grille = new Array(canvas.height / tailleCarr);
     for(let i = 0; i < grille.length; i++){
-        grille[i] = new Array(60);
+        grille[i] = new Array(canvas.width / tailleCarr);
         for(j = 0; j < grille[i].length; j++){
             grille[i][j] = null;
         }
@@ -153,6 +157,10 @@ function start(){
     function step(){
         interval = setInterval(function(){
             if(collision()){
+                if(score > highscore){
+                    highscore = score;
+                    highscoreText.textContent = "Record : " + score;
+                }
                 alert("Vous avez perdu")
                 clearInterval(interval);
                 ctx.clearRect(0, 0, canvas.width, canvas.height)

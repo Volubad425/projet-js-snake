@@ -2,23 +2,28 @@ body{
     background-color: black;
     color: white;
     font-family: Cascadia Code;
+    font-size: 10px;
 }
 
 #interface{
     display: flex;
+    flex-direction: column;
     justify-content: center;
 }
 
 #texte{
-    margin-right: 30px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    flex-direction: row;
+    justify-content: center;
 }
 
-
-#score{
-    align-self: flex-end;
+p{
+    padding: 10px;
+    margin: 5px;
+    margin-bottom: 10px;
+    background-color: royalblue;
+    border-radius: 10px;
+    width: 150px;
 }
 
 #snake{
