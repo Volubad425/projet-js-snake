@@ -1,5 +1,6 @@
 const canvas = document.getElementById("snake")
 const ctx = canvas.getContext("2d");
+const scoreText = document.getElementById("score");
 
 const long = 30;
 const larg = 30;
@@ -39,11 +40,12 @@ let grille = [
 
 let interval;
 let score = 0;
-let snake = [{x: 2, y: 14}];
+let snake = [{x: 5, y: 14}];
+let walls = [];
 let fruit = {x: null, y: null}
 let direction = "DROITE";
 
-document.addEventListener('keydown',function(evt){
+document.addEventListener('keyup',function(evt){
     if(evt.key === "ArrowDown"){
         if(direction != "HAUT"){
             direction = "BAS";
@@ -62,15 +64,15 @@ document.addEventListener('keydown',function(evt){
         }
     }
 });
+
 function setWalls(){
-    ctx.fillStyle = "greenyellow";
-    ctx.strokeStyle = "black";
+    ctx.fillStyle = "green";
     for(let i = 0; i < larg; i++){
         for(let j = 0; j < long; j++){
-            if((i === 0 || i === 29) || (j === 0 || j === 29)){
+            if((i === 0 || i === long - 1) || (j === 0 || j === larg - 1)){
                 grille[i][j] = "WALL";
                 ctx.fillRect(long*j, larg*i, long, larg);
-                ctx.strokeRect(long*j, larg*i, long, larg);
+                walls.push({x: j, y: i});
             }
         }
     }
@@ -86,55 +88,103 @@ function setFruit(){
 
     ctx.fillStyle = "red";
     ctx.fillRect(long*fruit.x, larg*fruit.y, long, larg);
-
-    console.log(`grille[${fruit.y}][${fruit.x}]`);
 }
 
-function drawSnake(postete, couleur){
-    ctx.fillStyle = couleur;
-    ctx.strokeStyle = "black";
-    snake.push(postete);
-    //console.log(snake);
-    snake.shift();
-    //console.log(snake);
+function drawSnake(){
+    ctx.fillStyle = "blue";
     for(const part of snake){
-        console.log(part);
-        grille[part.y][part.x] = "SNAKE";
-        ctx.fillRect(long*part.x, larg*part.y, long, larg)
-        ctx.strokeRect(long*part.x, larg*part.y, long, larg)
+        if(part.x != null && part.y != null){
+            grille[part.y][part.x] = "SNAKE";
+            ctx.fillRect(long*part.x, larg*part.y, long, larg);
+        }
     }
+}
+
+function clearSnake(){
+    for(const part of snake){
+        if(part.x != null && part.y != null){
+            grille[part.y][part.x] = null;
+            ctx.clearRect(long*part.x, larg*part.y, long, larg)
+        }
+    }
+}
+
+function update(){
+    clearSnake();
+    
+    ancienPostete = snake[0];
+    snake.pop();
+    if(direction === "DROITE"){
+        snake.unshift({x: ancienPostete.x + 1, y: ancienPostete.y});
+    }
+    else if(direction === "GAUCHE"){
+        snake.unshift({x: ancienPostete.x - 1, y: ancienPostete.y});
+    }
+    else if(direction == "BAS"){
+        snake.unshift({x: ancienPostete.x, y: ancienPostete.y + 1});
+    }
+    else if(direction == "HAUT"){
+        snake.unshift({x: ancienPostete.x, y: ancienPostete.y - 1});
+    }
+
+    drawSnake();
+}
+
+function grow(){
+    snake.push({x: null, y: null});
+
+    score++;
+    scoreText.textContent = "Score : " + score;
+}
+
+function eatFruit(){
+    posTete = snake[0]
+    if(posTete.x === fruit.x && posTete.y === fruit.y){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function collision(){
+    const posTete = snake[0];
+
+    for(const wall of walls){
+        if(posTete.x === wall.x && posTete.y === wall.y){
+            return true;
+        }
+    }
+
+    for(let i = 1; i < snake.length; i++){
+        if(posTete.x === snake[i].x && posTete.y === snake[i].y){
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function step(){
     interval = setInterval(function(){
-        drawSnake(snake[0], "black");
-        if(direction === "DROITE"){
-            snake[0].x++;
+        if(collision()){
+            alert("Vous avez perdu")
+            clearInterval(interval);
         }
-        else if(direction === "GAUCHE"){
-            snake[0].x--;
+        else{
+            if(eatFruit()){
+                grow();
+                update();
+                setFruit();
+            }
+            else{
+                update();
+            }
         }
-        else if(direction === "HAUT"){
-            snake[0].y--;
-        }
-        else if(direction === "BAS"){
-            snake[0].y++;
-        }
-        console.log(direction);
-        
-        drawSnake(snake[0], "yellow");
-        collision();
-    },1000);
+    }, 100);
 }
 
-
-function collision(){
-    if(snake[0].x == 0 || snake[0].y == 0 || snake[0].x == 30 || snake[0].y == 30 || snake[0] == fruit){
-        alert("Vous avez perdu !");
-        //clearInterval(interval);
-    }
-}
 setWalls();
 setFruit();
-drawSnake(snake[0], "yellow");
+drawSnake();
 step();

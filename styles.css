@@ -16,6 +16,11 @@ body{
     justify-content: space-between;
 }
 
+
 #score{
     align-self: flex-end;
+}
+
+#snake{
+    background-color: greenyellow;
 }
