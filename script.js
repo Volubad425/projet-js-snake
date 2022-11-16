@@ -37,8 +37,8 @@ let grille = [
     [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
 ]
 
+let interval;
 let score = 0;
-let tete = {x: 2, y: 14};
 let snake = [{x: 2, y: 14}];
 let fruit = {x: null, y: null}
 let direction = "DROITE";
@@ -94,10 +94,11 @@ function drawSnake(postete, couleur){
     ctx.fillStyle = couleur;
     ctx.strokeStyle = "black";
     snake.push(postete);
-    console.log(snake);
-    snake.pop();
-    console.log(snake);
+    //console.log(snake);
+    snake.shift();
+    //console.log(snake);
     for(const part of snake){
+        console.log(part);
         grille[part.y][part.x] = "SNAKE";
         ctx.fillRect(long*part.x, larg*part.y, long, larg)
         ctx.strokeRect(long*part.x, larg*part.y, long, larg)
@@ -105,7 +106,7 @@ function drawSnake(postete, couleur){
 }
 
 function step(){
-    setInterval(function(){
+    interval = setInterval(function(){
         drawSnake(snake[0], "black");
         if(direction === "DROITE"){
             snake[0].x++;
@@ -120,10 +121,19 @@ function step(){
             snake[0].y++;
         }
         console.log(direction);
+        
         drawSnake(snake[0], "yellow");
-    },500);
+        collision();
+    },1000);
 }
 
+
+function collision(){
+    if(snake[0].x == 0 || snake[0].y == 0 || snake[0].x == 30 || snake[0].y == 30 || snake[0] == fruit){
+        alert("Vous avez perdu !");
+        //clearInterval(interval);
+    }
+}
 setWalls();
 setFruit();
 drawSnake(snake[0], "yellow");
