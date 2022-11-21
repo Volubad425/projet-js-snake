@@ -4,12 +4,28 @@ var playing = false;
 
 var interface = document.getElementById("interface");
 var playButton = document.getElementById("playButton");
+var settings = document.getElementById("settings");
+var replayButton = document.getElementById("replayButton");
+var MMButton = document.getElementById("MMButton");
 playButton.addEventListener("click", function () {
     interface.style.display = "block";
     playButton.style.display = "none";
+    settings.style.display = "none";
     playing = true;
     start();
-    console.log('bonjour');
+});
+replayButton.addEventListener("click", function () {
+    playing = true;
+    clearInterval();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    start();
+});
+MMButton.addEventListener("click", function () {
+    interface.style.display = "none";
+    playButton.style.display = "block";
+    settings.style.display = "block";
+    playing = false;
+    clearInterval();
 });
 
 let highscore = 0;
@@ -17,7 +33,7 @@ const highscoreText = document.getElementById("highscore");
 highscoreText.textContent = "Record : " + highscore;
 
 function start() {
-    const canvas = document.getElementById("snake")
+    const canvas = document.getElementById("snake");
     const ctx = canvas.getContext("2d");
     const scoreText = document.getElementById("score");
 
@@ -28,7 +44,7 @@ function start() {
     let grille = new Array(canvas.height / tailleCarr);
     for (let i = 0; i < grille.length; i++) {
         grille[i] = new Array(canvas.width / tailleCarr);
-        for (j = 0; j < grille[i].length; j++) {
+        for (let j = 0; j < grille[i].length; j++) {
             grille[i][j] = null;
         }
     }
@@ -37,7 +53,7 @@ function start() {
     let score = 0;
     let snake = [{ x: 5, y: 14 }];
     let walls = [];
-    let fruit = { x: null, y: null, color: "red" }
+    let fruit = { x: null, y: null, color: "red" };
     let direction = "DROITE";
 
     document.addEventListener('keyup', function (evt) {
@@ -77,7 +93,7 @@ function start() {
         do {
             fruit.x = Math.floor(Math.random() * (grille[0].length - 0) + 0);
             fruit.y = Math.floor(Math.random() * (grille.length - 0) + 0);
-        } while (grille[fruit.y][fruit.x] === "SNAKE" || grille[fruit.y][fruit.x] === "WALL")
+        } while (grille[fruit.y][fruit.x] === "SNAKE" || grille[fruit.y][fruit.x] === "WALL");
         if (Math.floor(Math.random() * specialOdd) === 0) {
             if (Math.floor(Math.random()*2) === 0) {
                 fruit.color = "white";
@@ -117,6 +133,7 @@ function start() {
             grille[snake[snake.length - 1].y][snake[snake.length - 1].x] = null;
         }
         
+        let ancienPostete = snake[0];
         snake.pop();
         if (direction === "DROITE") {
             snake.unshift({ x: ancienPostete.x + 1, y: ancienPostete.y });
@@ -150,7 +167,7 @@ function start() {
     }
 
     function eatFruit() {
-        posTete = snake[0]
+        let posTete = snake[0];
         if (posTete.x === fruit.x && posTete.y === fruit.y) {
             if (grille[fruit.x][fruit.y] = "SPEEDUP") {
                 speed /= 1.5;
@@ -187,9 +204,12 @@ function start() {
         interval = setInterval(function () {
             update();
             if (collision()) {
-                
                 alert("Vous avez perdu");
                 clearInterval(interval);
+                console.log("Vous avez perdu");
+                clearInterval(interval);
+                playing = false;
+                
                 ctx.clearRect(0, 0, canvas.width, canvas.height)
             }
             else {
@@ -207,4 +227,3 @@ function start() {
     drawSnake();
     step();
 }
-

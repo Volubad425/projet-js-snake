@@ -1,17 +1,26 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>SNAKE</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <button id="playButton">Start game</button>
-        <div id="interface">
-            <div id="texte">
-                <p id="score"></p>
-                <p id="highscore"></p>
-            </div>
-            <canvas id="snake" width="600" height="600"></canvas>
+<head>
+    <title>SNAKE</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="mainMenu"></div>
+    <button id="playButton">Start game</button>
+    <button id="settings">Settings</button>
+    <div id="interface">
+        <div id="texte">
+            <p id="score"></p>
+            <p id="highscore"></p>
         </div>
-        <script src="script.js"></script>
-    </body>
+        <canvas id="snake" width="400" height="400"></canvas>
+        <div id="">
+            <button id="MMButton">Back to Main Menu</button>
+            <button id="replayButton">Replay</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
 </html>
