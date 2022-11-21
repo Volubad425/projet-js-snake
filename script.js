@@ -8,6 +8,12 @@ var settings = document.getElementById("settings");
 var replayButton = document.getElementById("replayButton");
 var MMButton = document.getElementById("MMButton");
 
+const canvas = document.getElementById("snake");
+const ctx = canvas.getContext("2d");
+const scoreText = document.getElementById("score");
+
+let interval;
+
 playButton.addEventListener("click", function () {
     interface.style.display = "block";
     playButton.style.display = "none";
@@ -18,7 +24,7 @@ playButton.addEventListener("click", function () {
 
 replayButton.addEventListener("click", function () {
     playing = true;
-    clearInterval();
+    clearInterval(interval);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     start();
 });
@@ -36,10 +42,6 @@ const highscoreText = document.getElementById("highscore");
 highscoreText.textContent = "Record : " + highscore;
 
 function start() {
-    const canvas = document.getElementById("snake");
-    const ctx = canvas.getContext("2d");
-    const scoreText = document.getElementById("score");
-
     scoreText.textContent = "Score : 0";
 
     const tailleCarr = 20;
@@ -52,7 +54,6 @@ function start() {
         }
     }
 
-    let interval;
     let score = 0;
     let snake = [{ x: 5, y: 14 }];
     let walls = [];
@@ -118,7 +119,7 @@ function start() {
 
     function drawSnake() {
         let i = 0;
-        ctx.fillStyle = "yellow";
+        ctx.fillStyle = "green";
         for (const part of snake) {
             if (part.x != null && part.y != null) {
                 grille[part.y][part.x] = "SNAKE";
@@ -129,8 +130,6 @@ function start() {
     }
 
     function update() {
-        ancienPostete = snake[0];
-
         if(snake[snake.length - 1].x != null && snake[snake.length - 1].y != null){
             ctx.clearRect(tailleCarr * snake[snake.length - 1].x, tailleCarr * snake[snake.length - 1].y, tailleCarr, tailleCarr);
             grille[snake[snake.length - 1].y][snake[snake.length - 1].x] = null;
@@ -153,7 +152,7 @@ function start() {
 
         grille[snake[0].y][snake[0].x] = "SNAKE";
 
-        ctx.fillStyle = "yellow";
+        ctx.fillStyle = "green";
         ctx.fillRect(tailleCarr * snake[0].x, tailleCarr * snake[0].y, tailleCarr, tailleCarr);
     }
 
