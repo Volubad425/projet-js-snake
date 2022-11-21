@@ -1,5 +1,4 @@
-var speed = 100;
-var specialOdd = 0;
+var specialOdd = 10;
 var playing = false;
 
 var interface = document.getElementById("interface");
@@ -43,7 +42,7 @@ highscoreText.textContent = "Record : " + highscore;
 
 function start() {
     scoreText.textContent = "Score : 0";
-
+    var speed = 100;
     const tailleCarr = 20;
 
     let grille = new Array(canvas.height / tailleCarr);
@@ -57,7 +56,7 @@ function start() {
     let score = 0;
     let snake = [{ x: 5, y: 14 }];
     let walls = [];
-    let fruit = { x: null, y: null, color: "red", type: "SPEEDUP"};
+    let fruit = { x: null, y: null, color: "red", type: null};
     let direction = "DROITE";
 
     document.addEventListener('keyup', function (evt) {
@@ -107,6 +106,10 @@ function start() {
                 fruit.color = "black";
                 fruit.type = "SPEEDDOWN";
             }
+        }
+        else{
+            fruit.color = "red";
+            fruit.type = null;
         }
 
         grille[fruit.y][fruit.x] = "FRUIT";
@@ -175,9 +178,10 @@ function start() {
     function eatFruit() {
         let posTete = snake[0];
         if (posTete.x === fruit.x && posTete.y === fruit.y) {
-            if (fruit.type == "SPEEDUP") {
+            if (fruit.type === "SPEEDUP") {
                 speed /= 1.5;
-            } else if (fruit.type = "SPEEDDOWN") {
+            } 
+            else if (fruit.type === "SPEEDDOWN") {
                 speed *= 2;
             }
             return true;
