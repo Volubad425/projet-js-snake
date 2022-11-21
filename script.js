@@ -57,7 +57,7 @@ function start() {
     let score = 0;
     let snake = [{ x: 5, y: 14 }];
     let walls = [];
-    let fruit = { x: null, y: null, color: "red" };
+    let fruit = { x: null, y: null, color: "red", type: "SPEEDUP"};
     let direction = "DROITE";
 
     document.addEventListener('keyup', function (evt) {
@@ -101,17 +101,15 @@ function start() {
         if (Math.floor(Math.random() * specialOdd) === 0) {
             if (Math.floor(Math.random()*2) === 0) {
                 fruit.color = "white";
-                grille[fruit.y][fruit.x] = "SPEEDUP";
+                fruit.type = "SPEEDUP";
             }
             else {
                 fruit.color = "black";
-                grille[fruit.y][fruit.x] = "SPEEDDOWN";
+                fruit.type = "SPEEDDOWN";
             }
-        } else {
-            fruit.color = "red";
-            grille[fruit.y][fruit.x] = "FRUIT";
-
         }
+
+        grille[fruit.y][fruit.x] = "FRUIT";
 
         ctx.fillStyle = fruit.color;
         ctx.fillRect(tailleCarr * fruit.x, tailleCarr * fruit.y, tailleCarr, tailleCarr);
@@ -129,7 +127,13 @@ function start() {
         }
     }
 
-    function update() {
+    function update(speedParam) {
+        if(speedParam != speed){
+            clearInterval(interval);
+            console.log(speed);
+            step();
+        }
+
         if(snake[snake.length - 1].x != null && snake[snake.length - 1].y != null){
             ctx.clearRect(tailleCarr * snake[snake.length - 1].x, tailleCarr * snake[snake.length - 1].y, tailleCarr, tailleCarr);
             grille[snake[snake.length - 1].y][snake[snake.length - 1].x] = null;
@@ -171,9 +175,9 @@ function start() {
     function eatFruit() {
         let posTete = snake[0];
         if (posTete.x === fruit.x && posTete.y === fruit.y) {
-            if (grille[fruit.x][fruit.y] = "SPEEDUP") {
+            if (fruit.type == "SPEEDUP") {
                 speed /= 1.5;
-            } else if (grille[fruit.x][fruit.y] = "SPEEDDOWN") {
+            } else if (fruit.type = "SPEEDDOWN") {
                 speed *= 2;
             }
             return true;
@@ -204,7 +208,7 @@ function start() {
     function step() {
         //if(playing)
         interval = setInterval(function () {
-            update();
+            update(speed);
             if (collision()) {
                 alert("Vous avez perdu");
                 clearInterval(interval);
@@ -224,6 +228,7 @@ function start() {
             
         }, speed);
     }
+
     setWalls();
     setFruit();
     drawSnake();
