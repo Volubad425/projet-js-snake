@@ -12,13 +12,6 @@ playButton.addEventListener("click", function () {
     console.log('bonjour');
 });
 
-
-
-
-
-
-
-
 let highscore = 0;
 const highscoreText = document.getElementById("highscore");
 highscoreText.textContent = "Record : " + highscore;
@@ -68,7 +61,7 @@ function start() {
     });
 
     function setWalls() {
-        ctx.fillStyle = "green";
+        ctx.fillStyle = "gray";
         for (let i = 0; i < grille.length; i++) {
             for (let j = 0; j < grille[i].length; j++) {
                 if ((i === 0 || i === grille.length - 1) || (j === 0 || j === grille[i].length - 1)) {
@@ -106,14 +99,8 @@ function start() {
 
     function drawSnake() {
         let i = 0;
-        ctx.fillStyle = "blue";
+        ctx.fillStyle = "yellow";
         for (const part of snake) {
-            if (i % 2 == 0) {
-                ctx.fillStyle = "blue";
-            }
-            else {
-                ctx.fillStyle = "yellow";
-            }
             if (part.x != null && part.y != null) {
                 grille[part.y][part.x] = "SNAKE";
                 ctx.fillRect(tailleCarr * part.x, tailleCarr * part.y, tailleCarr, tailleCarr);
@@ -122,19 +109,14 @@ function start() {
         }
     }
 
-    function clearSnake() {
-        for (const part of snake) {
-            if (part.x != null && part.y != null) {
-                grille[part.y][part.x] = null;
-                ctx.clearRect(tailleCarr * part.x, tailleCarr * part.y, tailleCarr, tailleCarr)
-            }
-        }
-    }
-
     function update() {
-        clearSnake();
-
         ancienPostete = snake[0];
+
+        if(snake[snake.length - 1].x != null && snake[snake.length - 1].y != null){
+            ctx.clearRect(tailleCarr * snake[snake.length - 1].x, tailleCarr * snake[snake.length - 1].y, tailleCarr, tailleCarr);
+            grille[snake[snake.length - 1].y][snake[snake.length - 1].x] = null;
+        }
+        
         snake.pop();
         if (direction === "DROITE") {
             snake.unshift({ x: ancienPostete.x + 1, y: ancienPostete.y });
@@ -149,7 +131,10 @@ function start() {
             snake.unshift({ x: ancienPostete.x, y: ancienPostete.y - 1 });
         }
 
-        drawSnake();
+        grille[snake[0].y][snake[0].x] = "SNAKE";
+
+        ctx.fillStyle = "yellow";
+        ctx.fillRect(tailleCarr * snake[0].x, tailleCarr * snake[0].y, tailleCarr, tailleCarr);
     }
 
     function grow() {
@@ -157,6 +142,11 @@ function start() {
 
         score++;
         scoreText.textContent = "Score : " + score;
+
+        if (score > highscore) {
+            highscore = score;
+            highscoreText.textContent = "Record : " + highscore;
+        }
     }
 
     function eatFruit() {
@@ -195,25 +185,18 @@ function start() {
     function step() {
         //if(playing)
         interval = setInterval(function () {
+            update();
             if (collision()) {
-                if (score > highscore) {
-                    highscore = score;
-                    highscoreText.textContent = "Record : " + score;
-                }
-                console.log("Vous avez perdu")
-                clearInterval(interval);
-                playing = false;
                 
-                // pas besoin -> ctx.clearRect(0, 0, canvas.width, canvas.height)
+                alert("Vous avez perdu");
+                clearInterval(interval);
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
             }
             else {
                 if (eatFruit()) {
                     grow();
                     update();
                     setFruit();
-                }
-                else {
-                    update();
                 }
             }
             

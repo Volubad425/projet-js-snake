@@ -1,5 +1,5 @@
 body{
-    background-color: black;
+    background-color: darkgreen;
     color: white;
     font-family: Cascadia Code;
     font-size: 10px;
@@ -25,5 +25,5 @@ p{
 }
 
 #snake{
-    background-color: greenyellow;
+    background-color: lightgray;
 }
