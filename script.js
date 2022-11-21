@@ -7,6 +7,7 @@ var playButton = document.getElementById("playButton");
 var settings = document.getElementById("settings");
 var replayButton = document.getElementById("replayButton");
 var MMButton = document.getElementById("MMButton");
+
 playButton.addEventListener("click", function () {
     interface.style.display = "block";
     playButton.style.display = "none";
@@ -14,12 +15,14 @@ playButton.addEventListener("click", function () {
     playing = true;
     start();
 });
+
 replayButton.addEventListener("click", function () {
     playing = true;
     clearInterval();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     start();
 });
+
 MMButton.addEventListener("click", function () {
     interface.style.display = "none";
     playButton.style.display = "block";
