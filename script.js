@@ -1,5 +1,6 @@
 var specialOdd = 10;
 var playing = false;
+var speed;
 
 var interface = document.getElementById("interface");
 var playButton = document.getElementById("playButton");
@@ -42,7 +43,7 @@ highscoreText.textContent = "Record : " + highscore;
 
 function start() {
     scoreText.textContent = "Score : 0";
-    var speed = 100;
+    speed = 100;
     const tailleCarr = 20;
 
     let grille = new Array(canvas.height / tailleCarr);
@@ -56,7 +57,7 @@ function start() {
     let score = 0;
     let snake = [{ x: 5, y: 14 }];
     let walls = [];
-    let fruit = { x: null, y: null, color: "red", type: null};
+    let fruit = { x: null, y: null, color: "red", type: null };
     let direction = "DROITE";
 
     document.addEventListener('keyup', function (evt) {
@@ -98,7 +99,7 @@ function start() {
             fruit.y = Math.floor(Math.random() * (grille.length - 0) + 0);
         } while (grille[fruit.y][fruit.x] === "SNAKE" || grille[fruit.y][fruit.x] === "WALL");
         if (Math.floor(Math.random() * specialOdd) === 0) {
-            if (Math.floor(Math.random()*2) === 0) {
+            if (Math.floor(Math.random() * 2) === 0) {
                 fruit.color = "white";
                 fruit.type = "SPEEDUP";
             }
@@ -107,7 +108,7 @@ function start() {
                 fruit.type = "SPEEDDOWN";
             }
         }
-        else{
+        else {
             fruit.color = "red";
             fruit.type = null;
         }
@@ -131,17 +132,17 @@ function start() {
     }
 
     function update(speedParam) {
-        if(speedParam != speed){
+        if (speedParam != speed) {
             clearInterval(interval);
             console.log(speed);
             step();
         }
 
-        if(snake[snake.length - 1].x != null && snake[snake.length - 1].y != null){
+        if (snake[snake.length - 1].x != null && snake[snake.length - 1].y != null) {
             ctx.clearRect(tailleCarr * snake[snake.length - 1].x, tailleCarr * snake[snake.length - 1].y, tailleCarr, tailleCarr);
             grille[snake[snake.length - 1].y][snake[snake.length - 1].x] = null;
         }
-        
+
         let ancienPostete = snake[0];
         snake.pop();
         if (direction === "DROITE") {
@@ -165,24 +166,26 @@ function start() {
 
     function grow() {
         snake.push({ x: null, y: null });
-
-        score++;
-        scoreText.textContent = "Score : " + score;
-
-        if (score > highscore) {
-            highscore = score;
-            highscoreText.textContent = "Record : " + highscore;
-        }
     }
 
     function eatFruit() {
         let posTete = snake[0];
         if (posTete.x === fruit.x && posTete.y === fruit.y) {
+            speed /= 1.05;
             if (fruit.type === "SPEEDUP") {
+                score += 2;
                 speed /= 1.5;
-            } 
+            }
             else if (fruit.type === "SPEEDDOWN") {
+                score++;
                 speed *= 2;
+            }
+            score++;
+            scoreText.textContent = "Score : " + score;
+
+            if (score > highscore) {
+                highscore = score;
+                highscoreText.textContent = "Record : " + highscore;
             }
             return true;
         }
@@ -210,16 +213,13 @@ function start() {
     }
 
     function step() {
-        //if(playing)
         interval = setInterval(function () {
             update(speed);
             if (collision()) {
-                alert("Vous avez perdu");
-                clearInterval(interval);
                 console.log("Vous avez perdu");
                 clearInterval(interval);
                 playing = false;
-                
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height)
             }
             else {
@@ -229,7 +229,7 @@ function start() {
                     setFruit();
                 }
             }
-            
+
         }, speed);
     }
 
