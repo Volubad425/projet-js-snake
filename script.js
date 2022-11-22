@@ -43,7 +43,7 @@ highscoreText.textContent = "Record : " + highscore;
 
 function start() {
     scoreText.textContent = "Score : 0";
-    speed = 100;
+    speed = 250;
     const tailleCarr = 20;
 
     let grille = new Array(canvas.height / tailleCarr);
@@ -171,14 +171,14 @@ function start() {
     function eatFruit() {
         let posTete = snake[0];
         if (posTete.x === fruit.x && posTete.y === fruit.y) {
-            speed /= 1.05;
+            speed /= 1.025;
             if (fruit.type === "SPEEDUP") {
                 score += 2;
                 speed /= 1.5;
             }
             else if (fruit.type === "SPEEDDOWN") {
                 score++;
-                speed *= 2;
+                speed *= 1.5;
             }
             score++;
             scoreText.textContent = "Score : " + score;
@@ -187,6 +187,7 @@ function start() {
                 highscore = score;
                 highscoreText.textContent = "Record : " + highscore;
             }
+            playAudio('./assets/eating.mp3');
             return true;
         }
         else {
@@ -199,12 +200,14 @@ function start() {
 
         for (const wall of walls) {
             if (posTete.x === wall.x && posTete.y === wall.y) {
+                playAudio('./assets/bump.mp3');
                 return true;
             }
         }
 
         for (let i = 1; i < snake.length; i++) {
             if (posTete.x === snake[i].x && posTete.y === snake[i].y) {
+                playAudio('./assets/bump.mp3');
                 return true;
             }
         }
@@ -213,7 +216,9 @@ function start() {
     }
 
     function step() {
+        
         interval = setInterval(function () {
+            playAudio('./assets/step.mp3');
             update(speed);
             if (collision()) {
                 console.log("Vous avez perdu");
@@ -231,6 +236,13 @@ function start() {
             }
 
         }, speed);
+    }
+
+    function playAudio(sound){
+        let audio = new Audio(sound);
+        audio.load();
+        audio.loop = false;
+        audio.play();
     }
 
     setWalls();
