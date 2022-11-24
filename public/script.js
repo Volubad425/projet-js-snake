@@ -15,7 +15,8 @@ const scoreText = document.getElementById("score");
 let interval;
 
 playButton.addEventListener("click", function () {
-    interface.style.display = "block";
+    interface.id = "interface-var";
+    interface.style.display = "flex";
     playButton.style.display = "none";
     settings.style.display = "none";
     playing = true;
@@ -207,7 +208,7 @@ function start() {
 
         for (let i = 1; i < snake.length; i++) {
             if (posTete.x === snake[i].x && posTete.y === snake[i].y) {
-                playAudio('./assets/bump.mp3');
+                playAudio('./assets/hurt.mp3');
                 return true;
             }
         }
