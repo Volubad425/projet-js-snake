@@ -219,7 +219,6 @@ function start() {
     function step() {
         
         interval = setInterval(function () {
-            playAudio('./assets/step.mp3');
             update(speed);
             if (collision()) {
                 console.log("Vous avez perdu");
