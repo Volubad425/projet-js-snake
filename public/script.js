@@ -181,7 +181,6 @@ class Board {
         let i = 0;
         let redSq = {x: 0, y: 0, color: "red"};
         let greenSq = {x: grid.width - 1, y: grid.height - 1, color: "green"};
-        let orangeSq = {x: grid.width - 1, y: 0, color: "orange"};
 
         interval = setInterval(function(){
             if(i < grid.cases.length){
@@ -216,12 +215,6 @@ class Board {
                 drawCtx.fillRect(40 * greenSq.x, 40 * greenSq.y, 40, 40);
                 drawCtx.shadowBlur = 0;
 
-                drawCtx.shadowColor = orangeSq.color;
-                drawCtx.shadowBlur = 20;
-                drawCtx.fillStyle = orangeSq.color;
-                drawCtx.fillRect(40 * orangeSq.x, 40 * orangeSq.y, 40, 40);
-                drawCtx.shadowBlur = 0;
-
                 if(redSq.x <= 0 && redSq.y < grid.height - 1) redSq.y++;
                 else if(redSq.x < grid.width - 1 && redSq.y >= grid.height - 1) redSq.x++;
                 else if(redSq.x >= grid.width - 1 && redSq.y > 0) redSq.y--;
@@ -231,11 +224,6 @@ class Board {
                 else if(greenSq.x < grid.width - 1 && greenSq.y >= grid.height - 1) greenSq.x++;
                 else if(greenSq.x >= grid.width - 1 && greenSq.y > 0) greenSq.y--;
                 else if(greenSq.x > 0 && greenSq.y <= 0) greenSq.x--;
-
-                if(orangeSq.x <= 0 && orangeSq.y < grid.height - 1) orangeSq.y++;
-                else if(orangeSq.x < grid.width - 1 && orangeSq.y >= grid.height - 1) orangeSq.x++;
-                else if(orangeSq.x >= grid.width - 1 && orangeSq.y > 0) orangeSq.y--;
-                else if(orangeSq.x > 0 && orangeSq.y <= 0) orangeSq.x--;
             }
         }, 100);
     }
