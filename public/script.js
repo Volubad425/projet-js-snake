@@ -164,7 +164,7 @@ class Board {
         let grid;
 
         try{
-            let response = await fetch("http://p2101845.pages.univ-lyon1.fr/projet-js-snake/config.json");
+            let response = await fetch("http://localhost/projet-js-snake/public/config.json");
     
             if(response.ok){
                 let data = await response.json();
@@ -179,19 +179,51 @@ class Board {
         }
 
         let i = 0;
+        let redSq = {x: 0, y: 0, color: "red"};
+        let greenSq = {x: grid.width - 1, y: grid.height - 1, color: "green"};
 
         interval = setInterval(function(){
-            if(i < grid.case.length){
+            if(i < grid.cases.length){
                 drawCtx.shadowColor = "white";
                 drawCtx.shadowBlur = 20;
                 drawCtx.fillStyle = "white";
-                drawCtx.fillRect(40 * grid.case[i].x, 40 * grid.case[i].y, 40, 40);
+                drawCtx.fillRect(40 * grid.cases[i].x, 40 * grid.cases[i].y, 40, 40);
                 drawCtx.shadowBlur = 0;
 
                 i++;
             }
             else{
-                clearInterval(interval);
+                drawCtx.clearRect(0, 0, draw.width, draw.height);
+
+                for(const element of grid.cases){
+                    drawCtx.shadowColor = "white";
+                    drawCtx.shadowBlur = 20;
+                    drawCtx.fillStyle = "white";
+                    drawCtx.fillRect(40 * element.x, 40 * element.y, 40, 40);
+                    drawCtx.shadowBlur = 0;
+                }
+
+                drawCtx.shadowColor = redSq.color;
+                drawCtx.shadowBlur = 20;
+                drawCtx.fillStyle = redSq.color;
+                drawCtx.fillRect(40 * redSq.x, 40 * redSq.y, 40, 40);
+                drawCtx.shadowBlur = 0;
+
+                drawCtx.shadowColor = greenSq.color;
+                drawCtx.shadowBlur = 20;
+                drawCtx.fillStyle = greenSq.color;
+                drawCtx.fillRect(40 * greenSq.x, 40 * greenSq.y, 40, 40);
+                drawCtx.shadowBlur = 0;
+
+                if(redSq.x <= 0 && redSq.y < grid.height - 1) redSq.y++;
+                else if(redSq.x < grid.width - 1 && redSq.y >= grid.height - 1) redSq.x++;
+                else if(redSq.x >= grid.width - 1 && redSq.y > 0) redSq.y--;
+                else if(redSq.x > 0 && redSq.y <= 0) redSq.x--;
+
+                if(greenSq.x <= 0 && greenSq.y < grid.height - 1) greenSq.y++;
+                else if(greenSq.x < grid.width - 1 && greenSq.y >= grid.height - 1) greenSq.x++;
+                else if(greenSq.x >= grid.width - 1 && greenSq.y > 0) greenSq.y--;
+                else if(greenSq.x > 0 && greenSq.y <= 0) greenSq.x--;
             }
         }, 100);
     }
@@ -205,7 +237,7 @@ class Board {
     
     async function start(){
         try{
-            let response = await fetch("http://p2101845.pages.univ-lyon1.fr/projet-js-snake/config.json");
+            let response = await fetch("http://localhost/projet-js-snake/public/config.json");
     
             if(response.ok){
                 let data = await response.json();

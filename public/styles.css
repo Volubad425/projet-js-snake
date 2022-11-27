@@ -4,9 +4,12 @@ body{
     font-family: 'Segoe UI Black', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 10px;
     width: 100%;
-    margin: 0;
+    margin: auto;
     text-align: center;
-    
+}
+
+.mainMenu{
+    margin-top: 40px;
 }
 
 .interface{
