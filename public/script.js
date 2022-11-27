@@ -1,252 +1,234 @@
-var specialOdd = 10;
-var playing = false;
-var speed;
+let board;
+let food;
+let snake;
+let speed;
 
-var interface = document.getElementById("interface");
-var playButton = document.getElementById("playButton");
-var settings = document.getElementById("settings");
-var replayButton = document.getElementById("replayButton");
-var MMButton = document.getElementById("MMButton");
+let interval;
+let playing = false;
 
 const canvas = document.getElementById("snake");
 const ctx = canvas.getContext("2d");
-const scoreText = document.getElementById("score");
+const score = document.getElementById("score");
 
-let interval;
+const interface = document.getElementById("interface");
+const playButton = document.getElementById("playButton");
+const settings = document.getElementById("settings");
+const replayButton = document.getElementById("replayButton");
+const MMButton = document.getElementById("MMButton");
 
-playButton.addEventListener("click", function () {
-    interface.id = "interface-var";
-    interface.style.display = "flex";
-    playButton.style.display = "none";
-    settings.style.display = "none";
-    playing = true;
-    start();
-});
-
-replayButton.addEventListener("click", function () {
-    playing = true;
-    clearInterval(interval);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    start();
-});
-
-MMButton.addEventListener("click", function () {
-    interface.style.display = "none";
-    playButton.style.display = "block";
-    settings.style.display = "block";
-    playing = false;
-    clearInterval();
-});
-
-let highscore = 0;
-const highscoreText = document.getElementById("highscore");
-highscoreText.textContent = "Record : " + highscore;
-
-function start() {
-    scoreText.textContent = "Score : 0";
-    speed = 250;
-    const tailleCarr = 20;
-
-    let grille = new Array(canvas.height / tailleCarr);
-    for (let i = 0; i < grille.length; i++) {
-        grille[i] = new Array(canvas.width / tailleCarr);
-        for (let j = 0; j < grille[i].length; j++) {
-            grille[i][j] = null;
-        }
-    }
-
-    let score = 0;
-    let snake = [{ x: 5, y: 14 }];
-    let walls = [];
-    let fruit = { x: null, y: null, color: "red", type: null };
-    let direction = "DROITE";
-
-    document.addEventListener('keyup', function (evt) {
-        if (evt.key === "ArrowDown") {
-            if (direction != "HAUT") {
-                direction = "BAS";
+(function(){
+    async function start(){
+        try{
+            let response = await fetch("http://localhost/projet-js-snake/public/config.json");
+    
+            if(response.ok){
+                let data = await response.json();
+    
+                board = data.board;
+                food = data.food;
+                snake = data.snake;
             }
-        } else if (evt.key === "ArrowLeft") {
-            if (direction != "DROITE") {
-                direction = "GAUCHE";
-            }
-        } else if (evt.key === "ArrowRight") {
-            if (direction != "GAUCHE") {
-                direction = "DROITE";
-            }
-        } else if (evt.key === "ArrowUp") {
-            if (direction != "BAS") {
-                direction = "HAUT";
+            else{
+                throw ("Erreur : ", response.status);
             }
         }
-    });
+        catch(err){
+            throw err;
+        }
+    
+        const sqSize = canvas.width / board.length;
 
-    function setWalls() {
-        ctx.fillStyle = "gray";
-        for (let i = 0; i < grille.length; i++) {
-            for (let j = 0; j < grille[i].length; j++) {
-                if ((i === 0 || i === grille.length - 1) || (j === 0 || j === grille[i].length - 1)) {
-                    grille[i][j] = "WALL";
-                    ctx.fillRect(tailleCarr * j, tailleCarr * i, tailleCarr, tailleCarr);
-                    walls.push({ x: j, y: i });
+        function setFood() {
+            do {
+                food.position.x = Math.floor(Math.random() * (board[0].length - 0) + 0);
+                food.position.y = Math.floor(Math.random() * (board.length - 0) + 0);
+            } while (board[food.position.y][food.position.x] === "SNAKE");
+
+            if (Math.floor(Math.random() * 10) === 0) {
+                if (Math.floor(Math.random() * 2) === 0) {
+                    food.color = "white";
+                    food.type = "SPEEDUP";
+                }
+                else {
+                    food.color = "black";
+                    food.type = "SPEEDDOWN";
                 }
             }
+            else {
+                food.color = "red";
+                food.type = null;
+            }
+    
+            board[food.position.y][food.position.x] = "FOOD";
+    
+            ctx.fillStyle = food.color;
+            ctx.fillRect(sqSize * food.position.x, sqSize * food.position.y, sqSize, sqSize);
         }
-    }
 
-    function setFruit() {
-        do {
-            fruit.x = Math.floor(Math.random() * (grille[0].length - 0) + 0);
-            fruit.y = Math.floor(Math.random() * (grille.length - 0) + 0);
-        } while (grille[fruit.y][fruit.x] === "SNAKE" || grille[fruit.y][fruit.x] === "WALL");
-        if (Math.floor(Math.random() * specialOdd) === 0) {
-            if (Math.floor(Math.random() * 2) === 0) {
-                fruit.color = "white";
-                fruit.type = "SPEEDUP";
+        function playAudio(sound){
+            let audio = new Audio(sound);
+            audio.load();
+            audio.loop = false;
+            audio.play();
+        }
+
+        function eatFood() {
+            if (snake.body[0].x === food.position.x && snake.body[0].y === food.position.y) {
+                snake.speed /= 1.025;
+                if (food.type === "SPEEDUP") {
+                    snake.speed /= 1.5;
+                }
+                else if (food.type === "SPEEDDOWN") {
+                    snake.speed *= 1.5;
+                }
+                return true;
             }
             else {
-                fruit.color = "black";
-                fruit.type = "SPEEDDOWN";
+                return false;
             }
         }
-        else {
-            fruit.color = "red";
-            fruit.type = null;
-        }
 
-        grille[fruit.y][fruit.x] = "FRUIT";
+        function collision() {
+            const head = snake.body[0];
 
-        ctx.fillStyle = fruit.color;
-        ctx.fillRect(tailleCarr * fruit.x, tailleCarr * fruit.y, tailleCarr, tailleCarr);
-    }
-
-    function drawSnake() {
-        let i = 0;
-        ctx.fillStyle = "green";
-        for (const part of snake) {
-            if (part.x != null && part.y != null) {
-                grille[part.y][part.x] = "SNAKE";
-                ctx.fillRect(tailleCarr * part.x, tailleCarr * part.y, tailleCarr, tailleCarr);
-            }
-            i++;
-        }
-    }
-
-    function update(speedParam) {
-        if (speedParam != speed) {
-            clearInterval(interval);
-            console.log(speed);
-            step();
-        }
-
-        if (snake[snake.length - 1].x != null && snake[snake.length - 1].y != null) {
-            ctx.clearRect(tailleCarr * snake[snake.length - 1].x, tailleCarr * snake[snake.length - 1].y, tailleCarr, tailleCarr);
-            grille[snake[snake.length - 1].y][snake[snake.length - 1].x] = null;
-        }
-
-        let ancienPostete = snake[0];
-        snake.pop();
-        if (direction === "DROITE") {
-            snake.unshift({ x: ancienPostete.x + 1, y: ancienPostete.y });
-        }
-        else if (direction === "GAUCHE") {
-            snake.unshift({ x: ancienPostete.x - 1, y: ancienPostete.y });
-        }
-        else if (direction == "BAS") {
-            snake.unshift({ x: ancienPostete.x, y: ancienPostete.y + 1 });
-        }
-        else if (direction == "HAUT") {
-            snake.unshift({ x: ancienPostete.x, y: ancienPostete.y - 1 });
-        }
-
-        grille[snake[0].y][snake[0].x] = "SNAKE";
-
-        ctx.fillStyle = "green";
-        ctx.fillRect(tailleCarr * snake[0].x, tailleCarr * snake[0].y, tailleCarr, tailleCarr);
-    }
-
-    function grow() {
-        snake.push({ x: null, y: null });
-    }
-
-    function eatFruit() {
-        let posTete = snake[0];
-        if (posTete.x === fruit.x && posTete.y === fruit.y) {
-            speed /= 1.025;
-            if (fruit.type === "SPEEDUP") {
-                score += 2;
-                speed /= 1.5;
-            }
-            else if (fruit.type === "SPEEDDOWN") {
-                score++;
-                speed *= 1.5;
-            }
-            score++;
-            scoreText.textContent = "Score : " + score;
-
-            if (score > highscore) {
-                highscore = score;
-                highscoreText.textContent = "Record : " + highscore;
-            }
-            playAudio('./assets/eating.mp3');
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    function collision() {
-        const posTete = snake[0];
-
-        for (const wall of walls) {
-            if (posTete.x === wall.x && posTete.y === wall.y) {
+            if((head.x > board.length - 1 || head.y > board.length - 1) || (head.x < 0 || head.y < 0)){
                 playAudio('./assets/bump.mp3');
                 return true;
             }
-        }
-
-        for (let i = 1; i < snake.length; i++) {
-            if (posTete.x === snake[i].x && posTete.y === snake[i].y) {
+            else if(board[head.y][head.x] === "SNAKE"){
                 playAudio('./assets/hurt.mp3');
                 return true;
             }
+            else{
+                return false;
+            }
         }
 
-        return false;
-    }
-
-    function step() {
-        
-        interval = setInterval(function () {
-            update(speed);
-            if (collision()) {
-                console.log("Vous avez perdu");
-                clearInterval(interval);
-                playing = false;
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height)
-            }
-            else {
-                if (eatFruit()) {
-                    grow();
-                    update();
-                    setFruit();
+        function step(speedParam) {
+            interval = setInterval(function () {
+                if (speedParam != snake.speed) {
+                    clearInterval(interval);
+                    console.log(snake.speed);
+                    step();
                 }
+
+                let tail = snake.body.pop();
+
+                if(tail.x != null && tail.y != null){
+                    ctx.clearRect(sqSize * tail.x, sqSize * tail.y, sqSize, sqSize);
+                    board[tail.y][tail.x] = "EMPTY";
+                }
+
+                let head = snake.body[0];
+
+                switch(snake.direction){
+                    case "DROITE":
+                        snake.body.unshift({ x: head.x + 1, y: head.y });
+                        break;
+                    case "GAUCHE":
+                        snake.body.unshift({ x: head.x - 1, y: head.y });
+                        break;
+                    case "BAS":
+                        snake.body.unshift({ x: head.x, y: head.y + 1 });
+                        break;
+                    case "HAUT":
+                        snake.body.unshift({ x: head.x, y: head.y - 1 });
+                        break;
+                }
+                head = snake.body[0];
+
+                console.log(head.x + " " + head.y);
+
+                ctx.fillStyle = "white";
+                ctx.shadowColor = "rgba(255, 255, 255, 0.3)";
+                ctx.shadowBlur = 20;
+                ctx.fillRect(sqSize * snake.body[0].x, sqSize * snake.body[0].y, sqSize, sqSize);   
+
+                if (collision()) {
+                    console.log("Vous avez perdu");
+                    clearInterval(interval);
+                    playing = false;
+    
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                else {  
+                    if (eatFood()) {
+                        playAudio('./assets/eating.mp3');
+                        snake.body.push({x: null, y: null});
+                        setFood();
+                    }
+                    board[head.y][head.x] = "SNAKE";
+                }
+            }, snake.speed);
+        }
+
+        document.addEventListener('keyup', function (evt) {
+            switch(evt.key){
+                case "ArrowDown":
+                    if (snake.direction != "HAUT") {
+                        snake.direction = "BAS";
+                    }
+                    break;
+                case "ArrowLeft":
+                    if (snake.direction != "DROITE") {
+                        snake.direction = "GAUCHE";
+                    }
+                    break;
+                case "ArrowRight":
+                    if (snake.direction != "GAUCHE") {
+                        snake.direction = "DROITE";
+                    }
+                    break;
+                case "ArrowUp":
+                    if (snake.direction != "BAS") {
+                        snake.direction = "HAUT";
+                    }
+                    break;
             }
+        });
 
-        }, speed);
+        function init(){
+            board[food.position.y][food.position.x] = "FOOD";
+
+            ctx.fillStyle = food.color;
+            ctx.shadowColor = food.color;
+            ctx.fillRect(sqSize * food.position.x, sqSize * food.position.y, sqSize, sqSize);
+
+            for (const part of snake.body) {
+                board[part.y][part.x] = "SNAKE";
+                ctx.fillStyle = "white";
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = "rgba(255, 255, 255, 0.3)";
+                
+                ctx.fillRect(sqSize * part.x, sqSize * part.y, sqSize, sqSize);
+            }
+        }
+
+        init();
+        step(snake.speed);
     }
 
-    function playAudio(sound){
-        let audio = new Audio(sound);
-        audio.load();
-        audio.loop = false;
-        audio.play();
-    }
-
-    setWalls();
-    setFruit();
-    drawSnake();
-    step();
-}
+    playButton.addEventListener("click", function () {
+        interface.id = "interface-var";
+        interface.style.display = "flex";
+        playButton.style.display = "none";
+        settings.style.display = "none";
+        playing = true;
+        start();
+    });
+    
+    replayButton.addEventListener("click", function () {
+        playing = true;
+        clearInterval(interval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        start();
+    });
+    
+    MMButton.addEventListener("click", function () {
+        interface.style.display = "none";
+        playButton.style.display = "block";
+        settings.style.display = "block";
+        playing = false;
+        clearInterval();
+    });
+})();
