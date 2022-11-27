@@ -182,9 +182,6 @@ class Board {
         let redSq = {x: 0, y: 0, color: "red"};
         let greenSq = {x: grid.width - 1, y: grid.height - 1, color: "green"};
         let orangeSq = {x: grid.width - 1, y: 0, color: "orange"};
-        let blueSq = {x: 0, y: grid.height - 1, color: "blue"};
-        let purpleSq = {x: (grid.width - 1) / 2, y: 0, color: "purple"};
-        let yellowSq = {x: (grid.width - 1) / 2, y: grid.height - 1, color: "yellow"};
 
         interval = setInterval(function(){
             if(i < grid.cases.length){
@@ -225,24 +222,6 @@ class Board {
                 drawCtx.fillRect(40 * orangeSq.x, 40 * orangeSq.y, 40, 40);
                 drawCtx.shadowBlur = 0;
 
-                drawCtx.shadowColor = blueSq.color;
-                drawCtx.shadowBlur = 20;
-                drawCtx.fillStyle = blueSq.color;
-                drawCtx.fillRect(40 * blueSq.x, 40 * blueSq.y, 40, 40);
-                drawCtx.shadowBlur = 0;
-
-                drawCtx.shadowColor = purpleSq.color;
-                drawCtx.shadowBlur = 20;
-                drawCtx.fillStyle = purpleSq.color;
-                drawCtx.fillRect(40 * purpleSq.x, 40 * purpleSq.y, 40, 40);
-                drawCtx.shadowBlur = 0;
-
-                drawCtx.shadowColor = yellowSq.color;
-                drawCtx.shadowBlur = 20;
-                drawCtx.fillStyle = yellowSq.color;
-                drawCtx.fillRect(40 * yellowSq.x, 40 * yellowSq.y, 40, 40);
-                drawCtx.shadowBlur = 0;
-
                 if(redSq.x <= 0 && redSq.y < grid.height - 1) redSq.y++;
                 else if(redSq.x < grid.width - 1 && redSq.y >= grid.height - 1) redSq.x++;
                 else if(redSq.x >= grid.width - 1 && redSq.y > 0) redSq.y--;
@@ -257,21 +236,6 @@ class Board {
                 else if(orangeSq.x < grid.width - 1 && orangeSq.y >= grid.height - 1) orangeSq.x++;
                 else if(orangeSq.x >= grid.width - 1 && orangeSq.y > 0) orangeSq.y--;
                 else if(orangeSq.x > 0 && orangeSq.y <= 0) orangeSq.x--;
-
-                if(blueSq.x <= 0 && blueSq.y < grid.height - 1) blueSq.y++;
-                else if(blueSq.x < grid.width - 1 && blueSq.y >= grid.height - 1) blueSq.x++;
-                else if(blueSq.x >= grid.width - 1 && blueSq.y > 0) blueSq.y--;
-                else if(blueSq.x > 0 && blueSq.y <= 0) blueSq.x--;
-
-                if(purpleSq.x <= 0 && purpleSq.y < grid.height - 1) purpleSq.y++;
-                else if(purpleSq.x < grid.width - 1 && purpleSq.y >= grid.height - 1) purpleSq.x++;
-                else if(purpleSq.x >= grid.width - 1 && purpleSq.y > 0) purpleSq.y--;
-                else if(purpleSq.x > 0 && purpleSq.y <= 0) purpleSq.x--;
-
-                if(yellowSq.x <= 0 && yellowSq.y < grid.height - 1) yellowSq.y++;
-                else if(yellowSq.x < grid.width - 1 && yellowSq.y >= grid.height - 1) yellowSq.x++;
-                else if(yellowSq.x >= grid.width - 1 && yellowSq.y > 0) yellowSq.y--;
-                else if(yellowSq.x > 0 && yellowSq.y <= 0) yellowSq.x--;
             }
         }, 100);
     }
