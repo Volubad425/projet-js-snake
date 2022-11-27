@@ -1,32 +1,174 @@
-let board;
-let food;
-let snake;
-let speed;
+let board, food, snake, speed;
+let score, highscore = 0;
 
-let interval;
-let playing = false;
+let interval, playing = false;
 
 const canvas = document.getElementById("snake");
 const ctx = canvas.getContext("2d");
-const score = document.getElementById("score");
+const scoretxt = document.getElementsByClassName("score");
 
-const interface = document.getElementById("interface");
+const menu = document.querySelector(".mainMenu");
+const interface = document.querySelector(".interface");
 const playButton = document.getElementById("playButton");
 const settings = document.getElementById("settings");
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
 
+class Snake {
+    constructor(body, speed, direction){
+        this.body = body;
+        this.direction = direction;
+        this.speed = speed;
+    }
+
+    draw(){
+        for(const part of this.body){
+            ctx.fillStyle = "white";
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "white";
+            ctx.fillRect(20 * part.x, 20 * part.y, 20, 20);
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    step(){
+        this.body.pop();
+
+        let oldHead = this.body[0];
+
+        switch(this.direction){
+            case "DROITE":
+                this.body.unshift({ x: oldHead.x + 1, y: oldHead.y });
+                break;
+            case "GAUCHE":
+                this.body.unshift({ x: oldHead.x - 1, y: oldHead.y });
+                break;
+            case "BAS":
+                this.body.unshift({ x: oldHead.x, y: oldHead.y + 1 });
+                break;
+            case "HAUT":
+                this.body.unshift({ x: oldHead.x, y: oldHead.y - 1 });
+                break;
+        }
+    }
+
+    eat(f){
+        if (this.body[0].x === f.position.x && this.body[0].y === f.position.y) {
+            this.speed /= 1.025;
+            if (food.type === "SPEEDUP") {
+                score += 2;
+                this.speed /= 1.5;
+            }
+            else if (food.type === "SPEEDDOWN") {
+                score++;
+                this.speed *= 1.5;
+            }
+            score++;
+            scoretxt[0].textContent = score;
+
+            if (score > highscore) {
+                highscore = score;
+                scoretxt[1].textContent = highscore;
+            }
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    grow(){
+        this.body.push({x: null, y: null});
+    }
+
+    hit(){
+        const head = this.body[0];
+        for(let i = 1; i < this.body.length; i++){
+            if(this.body[i].x === head.x && this.body[i].y === head.y){
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+class Food {
+    constructor(position, color, type){
+        this.position = position;
+        this.color = color;
+        this.type = type;
+    }
+
+    draw(){
+        ctx.shadowColor = food.color;
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = food.color;
+        ctx.fillRect(20 * food.position.x, 20 * food.position.y, 20, 20);
+        ctx.shadowBlur = 0;
+    }
+
+    update(grid, s){
+        let status;
+        do {
+            status = true;
+
+            this.position.x = Math.floor(Math.random() * (grid.width - 0) + 0);
+            this.position.y = Math.floor(Math.random() * (grid.height - 0) + 0);
+
+            for(const part of s.body){
+                if(part.x === this.position.x && part.y === this.position.y) status = false;
+            }
+        } while (!status);
+
+        if (Math.floor(Math.random() * 10) === 0) {
+            if (Math.floor(Math.random() * 2) === 0) {
+                this.color = "orange";
+                this.type = "SPEEDUP";
+            }
+            else {
+                this.color = "green";
+                this.type = "SPEEDDOWN";
+            }
+        }
+        else {
+            this.color = "red";
+            this.type = null;
+        }
+    }
+}
+
+class Board {
+    constructor(width, height){
+        this.width = width;
+        this.height = height;
+    }
+
+    draw(){
+        ctx.strokeStyle = "#454545";
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        for(let i = 0; i < this.width; i++){
+            for(let j = 0; j < this.height; j++){
+                ctx.strokeRect(j * 20, i * 20, 20, 20);
+            }
+        }
+    }
+}
+
 (function(){
-    async function start(){
+    async function drawGridMenu(){
+        const draw = document.getElementById("draw");
+        const drawCtx = draw.getContext("2d");
+
+        let grid;
+
         try{
-            let response = await fetch("http://localhost/projet-js-snake/public/config.json");
+            let response = await fetch("http://p2101845.pages.univ-lyon1.fr/projet-js-snake/config.json");
     
             if(response.ok){
                 let data = await response.json();
-    
-                board = data.board;
-                food = data.food;
-                snake = data.snake;
+                grid = data.grid;
             }
             else{
                 throw ("Erreur : ", response.status);
@@ -35,34 +177,49 @@ const MMButton = document.getElementById("MMButton");
         catch(err){
             throw err;
         }
-    
-        const sqSize = canvas.width / board.length;
 
-        function setFood() {
-            do {
-                food.position.x = Math.floor(Math.random() * (board[0].length - 0) + 0);
-                food.position.y = Math.floor(Math.random() * (board.length - 0) + 0);
-            } while (board[food.position.y][food.position.x] === "SNAKE");
+        let i = 0;
 
-            if (Math.floor(Math.random() * 10) === 0) {
-                if (Math.floor(Math.random() * 2) === 0) {
-                    food.color = "white";
-                    food.type = "SPEEDUP";
-                }
-                else {
-                    food.color = "black";
-                    food.type = "SPEEDDOWN";
-                }
+        interval = setInterval(function(){
+            if(i < grid.case.length){
+                drawCtx.shadowColor = "white";
+                drawCtx.shadowBlur = 20;
+                drawCtx.fillStyle = "white";
+                drawCtx.fillRect(40 * grid.case[i].x, 40 * grid.case[i].y, 40, 40);
+                drawCtx.shadowBlur = 0;
+
+                i++;
             }
-            else {
-                food.color = "red";
-                food.type = null;
+            else{
+                clearInterval(interval);
             }
+        }, 100);
+    }
+
+    function clearGridMenu(){
+        const draw = document.getElementById("draw");
+        const drawCtx = draw.getContext("2d");
+
+        drawCtx.clearRect(0, 0, draw.width, draw.height);
+    }
     
-            board[food.position.y][food.position.x] = "FOOD";
+    async function start(){
+        try{
+            let response = await fetch("http://p2101845.pages.univ-lyon1.fr/projet-js-snake/config.json");
     
-            ctx.fillStyle = food.color;
-            ctx.fillRect(sqSize * food.position.x, sqSize * food.position.y, sqSize, sqSize);
+            if(response.ok){
+                let data = await response.json();
+    
+                board = new Board(data.board.width, data.board.height);
+                food = new Food(data.food.position, data.food.color, data.food.type)
+                snake = new Snake(data.snake.body, data.snake.speed, data.snake.direction);
+            }
+            else{
+                throw ("Erreur : ", response.status);
+            }
+        }
+        catch(err){
+            throw err;
         }
 
         function playAudio(sound){
@@ -72,30 +229,14 @@ const MMButton = document.getElementById("MMButton");
             audio.play();
         }
 
-        function eatFood() {
-            if (snake.body[0].x === food.position.x && snake.body[0].y === food.position.y) {
-                snake.speed /= 1.025;
-                if (food.type === "SPEEDUP") {
-                    snake.speed /= 1.5;
-                }
-                else if (food.type === "SPEEDDOWN") {
-                    snake.speed *= 1.5;
-                }
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
         function collision() {
             const head = snake.body[0];
 
-            if((head.x > board.length - 1 || head.y > board.length - 1) || (head.x < 0 || head.y < 0)){
+            if((head.x > board.width - 1 || head.y > board.height - 1) || (head.x < 0 || head.y < 0)){
                 playAudio('./assets/bump.mp3');
                 return true;
             }
-            else if(board[head.y][head.x] === "SNAKE"){
+            else if(snake.hit()){
                 playAudio('./assets/hurt.mp3');
                 return true;
             }
@@ -104,60 +245,36 @@ const MMButton = document.getElementById("MMButton");
             }
         }
 
-        function step(speedParam) {
-            interval = setInterval(function () {
-                if (speedParam != snake.speed) {
+        function update(speedParam = null){
+            interval = setInterval(function(){
+                if(snake.speed != speedParam && speedParam != null){
                     clearInterval(interval);
-                    console.log(snake.speed);
-                    step();
+                    update(snake.speed);
                 }
-
-                let tail = snake.body.pop();
-
-                if(tail.x != null && tail.y != null){
-                    ctx.clearRect(sqSize * tail.x, sqSize * tail.y, sqSize, sqSize);
-                    board[tail.y][tail.x] = "EMPTY";
-                }
-
-                let head = snake.body[0];
-
-                switch(snake.direction){
-                    case "DROITE":
-                        snake.body.unshift({ x: head.x + 1, y: head.y });
-                        break;
-                    case "GAUCHE":
-                        snake.body.unshift({ x: head.x - 1, y: head.y });
-                        break;
-                    case "BAS":
-                        snake.body.unshift({ x: head.x, y: head.y + 1 });
-                        break;
-                    case "HAUT":
-                        snake.body.unshift({ x: head.x, y: head.y - 1 });
-                        break;
-                }
-                head = snake.body[0];
-
-                console.log(head.x + " " + head.y);
-
-                ctx.fillStyle = "white";
-                ctx.shadowColor = "rgba(255, 255, 255, 0.3)";
-                ctx.shadowBlur = 20;
-                ctx.fillRect(sqSize * snake.body[0].x, sqSize * snake.body[0].y, sqSize, sqSize);   
-
-                if (collision()) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                board.draw();
+                if(collision()){
                     console.log("Vous avez perdu");
+
+                    ctx.fillStyle = "#999999";
+                    ctx.font = "35px Segoe UI Black";
+                    ctx.fillText('VOUS AVEZ PERDU', 37, 190);
+                    ctx.font = "15px Segoe UI Black";
+                    ctx.fillText('Cliquez sur REPLAY pour rejouer', 80, 220);
                     clearInterval(interval);
                     playing = false;
-    
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                 }
-                else {  
-                    if (eatFood()) {
+                else{
+                    if(snake.eat(food)){
                         playAudio('./assets/eating.mp3');
-                        snake.body.push({x: null, y: null});
-                        setFood();
+                        snake.grow();
+                        food.update(board, snake);
                     }
-                    board[head.y][head.x] = "SNAKE";
+
+                    snake.step();
+                    
+                    food.draw();
+                    snake.draw();
                 }
             }, snake.speed);
         }
@@ -187,33 +304,22 @@ const MMButton = document.getElementById("MMButton");
             }
         });
 
-        function init(){
-            board[food.position.y][food.position.x] = "FOOD";
-
-            ctx.fillStyle = food.color;
-            ctx.shadowColor = food.color;
-            ctx.fillRect(sqSize * food.position.x, sqSize * food.position.y, sqSize, sqSize);
-
-            for (const part of snake.body) {
-                board[part.y][part.x] = "SNAKE";
-                ctx.fillStyle = "white";
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = "rgba(255, 255, 255, 0.3)";
-                
-                ctx.fillRect(sqSize * part.x, sqSize * part.y, sqSize, sqSize);
-            }
-        }
-
-        init();
-        step(snake.speed);
+        score = 0;
+        scoretxt[0].textContent = score;
+        snake.draw();
+        food.draw();
+        board.draw();
+        update(snake.speed);
     }
 
+    drawGridMenu();
+
     playButton.addEventListener("click", function () {
-        interface.id = "interface-var";
-        interface.style.display = "flex";
-        playButton.style.display = "none";
-        settings.style.display = "none";
+        interface.class = "interface-var";
+        interface.style.display = "block";
+        menu.style.display = "none";
         playing = true;
+        clearInterval(interval);
         start();
     });
     
@@ -226,9 +332,10 @@ const MMButton = document.getElementById("MMButton");
     
     MMButton.addEventListener("click", function () {
         interface.style.display = "none";
-        playButton.style.display = "block";
-        settings.style.display = "block";
+        menu.style.display = "block";
         playing = false;
-        clearInterval();
+        clearInterval(interval);
+        clearGridMenu()
+        drawGridMenu();
     });
 })();

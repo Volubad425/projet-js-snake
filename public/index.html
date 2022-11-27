@@ -3,22 +3,38 @@
 <head>
     <title>Snake the Game</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="icon" type="image/x-png" href="./assets/snake.ico">
 </head>
 
 <body>
-    <div id="mainMenu"></div>
-    <button id="playButton">Start game</button>
-    <button id="settings">Settings</button>
-
-    <div id="interface">
-        <div id="texte">
-            <p id="score"></p>
-            <button id="MMButton">Back to Main Menu</button>
-            <button id="replayButton">Replay</button>
+    <div class="mainMenu">
+        <canvas id="draw" width="840" height="280"></canvas>
+        <div class="buttons">
+            <button id="playButton"><i class="fa fa-play"> </i> Start game</button>
+            <button id="settings"><i class="fa fa-gear"></i> Settings</button>
         </div>
-        <canvas id="snake" width="600" height="600"></canvas>
-        <canvas id="score" width="600" height="600"></canvas>
+    </div>
+    
+
+    <div class="interface">
+        <div class="content">
+            <div class="texte">
+                <p id="texte">Score</p>
+                <p class="score"></p>
+            </div>
+            <div class="game">
+                <canvas id="snake" width="400" height="400"></canvas>
+                <div class="buttons">
+                    <button id="replayButton"><i class="fa fa-play"></i> Replay</button>
+                    <button id="MMButton"><i class="fa fa-bars"></i> Back to Main Menu</button>
+                </div>
+            </div>
+            <div class="texte">
+                <p id="texte">Record</p>
+                <p class="score">0</p>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
