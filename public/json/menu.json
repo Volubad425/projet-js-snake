@@ -63,22 +63,5 @@
             { "x": 19, "y": 6 },
             { "x": 20, "y": 6 }
         ]
-    },
-
-    "board" : {
-        "width": 20,
-        "height": 20
-    },
-
-    "food": {
-        "position": { "x": 14, "y": 9 },
-        "color": "red",
-        "type": null
-    },
-
-    "snake": {
-        "body": [ { "x": 5, "y": 9 }, { "x": 4, "y": 9 } ],
-        "speed": 100,
-        "direction": "DROITE"
     }
 }

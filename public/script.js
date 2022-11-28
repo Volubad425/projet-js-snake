@@ -1,27 +1,31 @@
-let board, food, snake, speed;
-let score, highscore = 0;
-
-let interval, playing = false;
+let board, food, snake, speed, walls = [];
+let score, highscore = 0, menuInterval, gameInterval, playing = false;
 
 const canvas = document.getElementById("snake");
 const ctx = canvas.getContext("2d");
+
+const draw = document.getElementById("draw");
+const drawCtx = draw.getContext("2d");
+
 const scoretxt = document.getElementsByClassName("score");
 
 const menu = document.querySelector(".mainMenu");
 const interface = document.querySelector(".interface");
 const playButton = document.getElementById("playButton");
+const hardcoreButton = document.getElementById("hardcoreButton");
 const levelsButton = document.getElementById("levelsButton");
 const settings = document.getElementById("settings");
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
 
+// Objet serpent
 class Snake {
+    // Constructeur
     constructor(body, speed, direction){
         this.body = body;
         this.direction = direction;
         this.speed = speed;
     }
-
     draw(){
         for(const part of this.body){
             ctx.fillStyle = "white";
@@ -31,7 +35,6 @@ class Snake {
             ctx.shadowBlur = 0;
         }
     }
-
     step(){
         this.body.pop();
 
@@ -52,7 +55,6 @@ class Snake {
                 break;
         }
     }
-
     eat(f){
         if (this.body[0].x === f.position.x && this.body[0].y === f.position.y) {
             this.speed /= 1.025;
@@ -78,19 +80,22 @@ class Snake {
             return false;
         }
     }
-
     grow(){
         this.body.push({x: null, y: null});
     }
+    hitWall(){
+        const head = this.body[0];
+        for(const wall of walls){
+            if(wall.x === head.x && wall.y === head.y) return true;
+        }
+        return false;
+    }
 
-    hit(){
+    hitBody(){
         const head = this.body[0];
         for(let i = 1; i < this.body.length; i++){
-            if(this.body[i].x === head.x && this.body[i].y === head.y){
-                return true;
-            }
+            if(this.body[i].x === head.x && this.body[i].y === head.y) return true;
         }
-
         return false;
     }
 }
@@ -110,16 +115,22 @@ class Food {
         ctx.shadowBlur = 0;
     }
 
-    update(grid, s){
+    update(){
         let status;
         do {
             status = true;
 
-            this.position.x = Math.floor(Math.random() * (grid.width - 0) + 0);
-            this.position.y = Math.floor(Math.random() * (grid.height - 0) + 0);
+            this.position.x = Math.floor(Math.random() * (board.width - 0) + 0);
+            this.position.y = Math.floor(Math.random() * (board.height - 0) + 0);
 
-            for(const part of s.body){
+            for(const part of snake.body){
                 if(part.x === this.position.x && part.y === this.position.y) status = false;
+            }
+
+            if(walls.length > 0){
+                for(const wall of walls){
+                    if(wall.x === this.position.x && wall.y === this.position.y) status = false;
+                }
             }
         } while (!status);
 
@@ -140,15 +151,40 @@ class Food {
     }
 }
 
-class Board {
-    constructor(width, height, walls){
-        this.width = width;
-        this.height = height;
-        this.walls = walls;
+
+class Wall {
+    constructor(x = null, y = null){
+        this.x = x;
+        this.y = y;
     }
 
-    setWalls(walls){
-        this.walls = walls;
+    generate(){
+        let status;
+        do {
+            status = true;
+
+            this.x = Math.floor(Math.random() * (board.width - 0) + 0);
+            this.y = Math.floor(Math.random() * (board.height - 0) + 0);
+
+            for(const part of snake.body){
+                if(part.x === this.x && part.y === this.y) status = false;
+            }
+        } while (!status);
+    }
+
+    draw(){
+        ctx.shadowColor = "purple";
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = "purple";
+        ctx.fillRect(20 * this.x, 20 * this.y, 20, 20);
+        ctx.shadowBlur = 0;
+    }
+}
+
+class Board {
+    constructor(width, height){
+        this.width = width;
+        this.height = height;
     }
 
     draw(){
@@ -159,97 +195,97 @@ class Board {
                 ctx.strokeRect(j * 20, i * 20, 20, 20);
             }
         }
-        ctx.strokeStyle = "#b3ec00";
-        for(let i = 0; i < this.walls.length; i++){
-            ctx.fillRect(this.walls[i][0] * 20, this.walls[i][1] * 20, 20, 20)
-        }
     }
 }
 
-(function(){
-    async function drawGridMenu(){
-        const draw = document.getElementById("draw");
-        const drawCtx = draw.getContext("2d");
+// Effets audios
+function playAudio(sound){
+    let audio = new Audio(sound);
+    audio.load();
+    audio.loop = false;
+    audio.play();
+}
 
-        let grid;
-        let walls = [];
+// Menu
+async function showMenu(){
+    let grid;
 
-        try{
-            let response = await fetch("./config.json");
+    try{
+        let response = await fetch("./json/menu.json");
     
-            if(response.ok){
-                let data = await response.json();
-                grid = data.grid;
-            }
-            else{
-                throw ("Erreur : ", response.status);
-            }
+        if(response.ok){
+            let data = await response.json();
+            grid = data.grid;
         }
-        catch(err){
-            throw err;
+        else{
+            throw ("Erreur : ", response.status);
         }
+    }
+    catch(err){
+        throw err;
+    }
 
         
-        let i = 0;
-        let redSq = {x: 0, y: 0, color: "red"};
-        let greenSq = {x: grid.width - 1, y: grid.height - 1, color: "green"};
+    let i = 0;
+    let redSq = {x: 0, y: 0, color: "red"};
+    let greenSq = {x: grid.width - 1, y: grid.height - 1, color: "green"};
 
-        interval = setInterval(function(){
-            if(i < grid.cases.length){
+    menuInterval = setInterval(function(){
+        if(i < grid.cases.length){
+            drawCtx.shadowColor = "white";
+            drawCtx.shadowBlur = 20;
+            drawCtx.fillStyle = "white";
+            drawCtx.fillRect(40 * grid.cases[i].x, 40 * grid.cases[i].y, 40, 40);
+            drawCtx.shadowBlur = 0;
+
+            i++;
+        }
+        else{
+            drawCtx.clearRect(0, 0, draw.width, draw.height);
+
+            for(const element of grid.cases){
                 drawCtx.shadowColor = "white";
                 drawCtx.shadowBlur = 20;
                 drawCtx.fillStyle = "white";
-                drawCtx.fillRect(40 * grid.cases[i].x, 40 * grid.cases[i].y, 40, 40);
+                drawCtx.fillRect(40 * element.x, 40 * element.y, 40, 40);
                 drawCtx.shadowBlur = 0;
-
-                i++;
             }
-            else{
-                drawCtx.clearRect(0, 0, draw.width, draw.height);
 
-                for(const element of grid.cases){
-                    drawCtx.shadowColor = "white";
-                    drawCtx.shadowBlur = 20;
-                    drawCtx.fillStyle = "white";
-                    drawCtx.fillRect(40 * element.x, 40 * element.y, 40, 40);
-                    drawCtx.shadowBlur = 0;
-                }
+            drawCtx.shadowColor = redSq.color;
+            drawCtx.shadowBlur = 20;
+            drawCtx.fillStyle = redSq.color;
+            drawCtx.fillRect(40 * redSq.x, 40 * redSq.y, 40, 40);
+            drawCtx.shadowBlur = 0;
 
-                drawCtx.shadowColor = redSq.color;
-                drawCtx.shadowBlur = 20;
-                drawCtx.fillStyle = redSq.color;
-                drawCtx.fillRect(40 * redSq.x, 40 * redSq.y, 40, 40);
-                drawCtx.shadowBlur = 0;
+            drawCtx.shadowColor = greenSq.color;
+            drawCtx.shadowBlur = 20;
+            drawCtx.fillStyle = greenSq.color;
+            drawCtx.fillRect(40 * greenSq.x, 40 * greenSq.y, 40, 40);
+            drawCtx.shadowBlur = 0;
 
-                drawCtx.shadowColor = greenSq.color;
-                drawCtx.shadowBlur = 20;
-                drawCtx.fillStyle = greenSq.color;
-                drawCtx.fillRect(40 * greenSq.x, 40 * greenSq.y, 40, 40);
-                drawCtx.shadowBlur = 0;
+            if(redSq.x <= 0 && redSq.y < grid.height - 1) redSq.y++;
+            else if(redSq.x < grid.width - 1 && redSq.y >= grid.height - 1) redSq.x++;
+            else if(redSq.x >= grid.width - 1 && redSq.y > 0) redSq.y--;
+            else if(redSq.x > 0 && redSq.y <= 0) redSq.x--;
 
-                if(redSq.x <= 0 && redSq.y < grid.height - 1) redSq.y++;
-                else if(redSq.x < grid.width - 1 && redSq.y >= grid.height - 1) redSq.x++;
-                else if(redSq.x >= grid.width - 1 && redSq.y > 0) redSq.y--;
-                else if(redSq.x > 0 && redSq.y <= 0) redSq.x--;
+            if(greenSq.x <= 0 && greenSq.y < grid.height - 1) greenSq.y++;
+            else if(greenSq.x < grid.width - 1 && greenSq.y >= grid.height - 1) greenSq.x++;
+            else if(greenSq.x >= grid.width - 1 && greenSq.y > 0) greenSq.y--;
+            else if(greenSq.x > 0 && greenSq.y <= 0) greenSq.x--;
+        }
+    }, 100);
+};
 
-                if(greenSq.x <= 0 && greenSq.y < grid.height - 1) greenSq.y++;
-                else if(greenSq.x < grid.width - 1 && greenSq.y >= grid.height - 1) greenSq.x++;
-                else if(greenSq.x >= grid.width - 1 && greenSq.y > 0) greenSq.y--;
-                else if(greenSq.x > 0 && greenSq.y <= 0) greenSq.x--;
-            }
-        }, 100);
-    }
+// Normal mode
+playButton.addEventListener("click", function () {
+    interface.class = "interface-var";
+    interface.style.display = "block";
+    menu.style.display = "none";
+    playing = true;
 
-    function clearGridMenu(){
-        const draw = document.getElementById("draw");
-        const drawCtx = draw.getContext("2d");
-
-        drawCtx.clearRect(0, 0, draw.width, draw.height);
-    }
-    
     async function start(){
         try{
-            let response = await fetch("./config.json");
+            let response = await fetch("./json/normal.json");
     
             if(response.ok){
                 let data = await response.json();
@@ -264,37 +300,16 @@ class Board {
         catch(err){
             throw err;
         }
-        try{
-            let response = await fetch('./json/level1.json');
-
-            if(response.ok){
-                let data = await response.json();
-
-                board.setWalls(data.walls);
-            }
-            else {
-                throw ("Erreur : ", response.status);
-            }
-        }
-        catch(err){
-            throw err;
-        }
-
-        function playAudio(sound){
-            let audio = new Audio(sound);
-            audio.load();
-            audio.loop = false;
-            audio.play();
-        }
+        console.log("test");
 
         function collision() {
             const head = snake.body[0];
 
-            if((head.x > board.width - 1 || head.y > board.height - 1) || (head.x < 0 || head.y < 0)){
+            if(((head.x > board.width - 1 || head.y > board.height - 1) || (head.x < 0 || head.y < 0))){
                 playAudio('./assets/bump.mp3');
                 return true;
             }
-            else if(snake.hit()){
+            else if(snake.hitBody()){
                 playAudio('./assets/hurt.mp3');
                 return true;
             }
@@ -304,9 +319,117 @@ class Board {
         }
 
         function update(speedParam = null){
-            interval = setInterval(function(){
+            gameInterval = setInterval(function(){
                 if(snake.speed != speedParam && speedParam != null){
-                    clearInterval(interval);
+                    clearInterval(gameInterval);
+                    update(snake.speed);
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                board.draw();
+                if(collision()){
+                    ctx.fillStyle = "#999999";
+                    ctx.font = "35px Segoe UI Black";
+                    ctx.fillText('YOU LOST', 110, 190);
+                    ctx.font = "15px Segoe UI Black";
+                    ctx.fillText('Press on REPLAY button to restart', 75, 220);
+                    clearInterval(gameInterval);
+                    playing = false;
+                }
+                else{
+                    if(snake.eat(food)){
+                        playAudio('./assets/eating.mp3');
+                        snake.grow();
+                        food.update();
+                    }
+
+                    snake.step();
+                    food.draw();
+                    snake.draw();
+                }
+            }, snake.speed);
+        }
+
+        score = 0;
+        scoretxt[0].textContent = score;
+
+        snake.draw();
+        food.draw();
+        board.draw();
+
+        update(snake.speed);
+    };
+
+    function reset(){
+        playing = true;
+        clearInterval(gameInterval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        start();
+    }
+
+    replayButton.addEventListener("click", reset);
+
+    MMButton.addEventListener("click", function() {
+        replayButton.removeEventListener("click", reset);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        interface.style.display = "none";
+        menu.style.display = "block";
+        playing = false;
+        clearInterval(gameInterval);
+    });
+
+    start();
+});
+
+// Hardcore mode
+hardcoreButton.addEventListener("click", function(){
+    interface.class = "interface-var";
+    interface.style.display = "block";
+    menu.style.display = "none";
+    playing = true;
+
+    async function start(){
+        try{
+            let response = await fetch("./json/hardcore.json");
+    
+            if(response.ok){
+                let data = await response.json();
+                board = new Board(data.board.width, data.board.height, data.walls);
+                food = new Food(data.food.position, data.food.color, data.food.type)
+                snake = new Snake(data.snake.body, data.snake.speed, data.snake.direction);
+                walls = [];
+
+                for(const wall of data.walls){
+                    walls.push(new Wall(wall.x, wall.y));
+                }
+            }
+            else{
+                throw ("Erreur : ", response.status);
+            }
+        }
+        catch(err){
+            throw err;
+        }
+
+        function collision() {
+            const head = snake.body[0];
+
+            if(((head.x > board.width - 1 || head.y > board.height - 1) || (head.x < 0 || head.y < 0)) || snake.hitWall()){
+                playAudio('./assets/bump.mp3');
+                return true;
+            }
+            else if(snake.hitBody()){
+                playAudio('./assets/hurt.mp3');
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+
+        function update(speedParam = null){
+            gameInterval = setInterval(function(){
+                if(snake.speed != speedParam && speedParam != null){
+                    clearInterval(gameInterval);
                     update(snake.speed);
                 }
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -316,84 +439,90 @@ class Board {
 
                     ctx.fillStyle = "#999999";
                     ctx.font = "35px Segoe UI Black";
-                    ctx.fillText('YOU LOST', 37, 190);
+                    ctx.fillText('YOU LOST', 110, 190);
                     ctx.font = "15px Segoe UI Black";
-                    ctx.fillText('PRESS ON REPLAY TO RESTART THE GAME', 80, 220);
-                    clearInterval(interval);
+                    ctx.fillText('Press on REPLAY button to restart', 75, 220);
+                    clearInterval(gameInterval);
                     playing = false;
                 }
                 else{
                     if(snake.eat(food)){
                         playAudio('./assets/eating.mp3');
                         snake.grow();
-                        food.update(board, snake);
+                        for(let i = 0; i < walls.length; i++){
+                            walls[i].generate();
+                        }
+                        food.update();
                     }
 
                     snake.step();
-                    
                     food.draw();
                     snake.draw();
+
+                    for(let i = 0; i < walls.length; i++){
+                        walls[i].draw();
+                    }
                 }
             }, snake.speed);
         }
-
-        document.addEventListener('keyup', function (evt) {
-            switch(evt.key){
-                case "ArrowDown":
-                    if (snake.direction != "HAUT") {
-                        snake.direction = "BAS";
-                    }
-                    break;
-                case "ArrowLeft":
-                    if (snake.direction != "DROITE") {
-                        snake.direction = "GAUCHE";
-                    }
-                    break;
-                case "ArrowRight":
-                    if (snake.direction != "GAUCHE") {
-                        snake.direction = "DROITE";
-                    }
-                    break;
-                case "ArrowUp":
-                    if (snake.direction != "BAS") {
-                        snake.direction = "HAUT";
-                    }
-                    break;
-            }
-        });
 
         score = 0;
         scoretxt[0].textContent = score;
         snake.draw();
         food.draw();
         board.draw();
+
+        for(let i = 0; i < walls.length; i++){
+            walls[i].draw();
+        }
+
         update(snake.speed);
-    }
+    };
 
-    drawGridMenu();
-
-    playButton.addEventListener("click", function () {
-        interface.class = "interface-var";
-        interface.style.display = "block";
-        menu.style.display = "none";
+    function reset(){
         playing = true;
-        clearInterval(interval);
-        start();
-    });
-    
-    replayButton.addEventListener("click", function () {
-        playing = true;
-        clearInterval(interval);
+        clearInterval(gameInterval);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         start();
-    });
-    
-    MMButton.addEventListener("click", function () {
+    }
+
+    replayButton.addEventListener("click", reset);
+
+    MMButton.addEventListener("click", function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        replayButton.removeEventListener("click", reset);
         interface.style.display = "none";
         menu.style.display = "block";
         playing = false;
-        clearInterval(interval);
-        clearGridMenu()
-        drawGridMenu();
+        clearInterval(gameInterval);
     });
-})();
+
+    start();
+});
+
+showMenu();
+
+document.addEventListener('keyup', function (evt) {
+    switch(evt.key){
+        case "ArrowDown":
+            if (snake.direction != "HAUT") {
+                snake.direction = "BAS";
+            }
+            break;
+        case "ArrowLeft":
+            if (snake.direction != "DROITE") {
+                snake.direction = "GAUCHE";
+            }
+            break;
+        case "ArrowRight":
+            if (snake.direction != "GAUCHE") {
+                snake.direction = "DROITE";
+            }
+            break;
+        case "ArrowUp":
+            if (snake.direction != "BAS") {
+                snake.direction = "HAUT";
+            }
+            break;
+    }
+});
