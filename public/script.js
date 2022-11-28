@@ -10,6 +10,7 @@ const scoretxt = document.getElementsByClassName("score");
 const menu = document.querySelector(".mainMenu");
 const interface = document.querySelector(".interface");
 const playButton = document.getElementById("playButton");
+const levelsButton = document.getElementById("levelsButton");
 const settings = document.getElementById("settings");
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
@@ -140,9 +141,14 @@ class Food {
 }
 
 class Board {
-    constructor(width, height){
+    constructor(width, height, walls){
         this.width = width;
         this.height = height;
+        this.walls = walls;
+    }
+
+    setWalls(walls){
+        this.walls = walls;
     }
 
     draw(){
@@ -153,6 +159,10 @@ class Board {
                 ctx.strokeRect(j * 20, i * 20, 20, 20);
             }
         }
+        ctx.strokeStyle = "#b3ec00";
+        for(let i = 0; i < this.walls.length; i++){
+            ctx.fillRect(this.walls[i][0] * 20, this.walls[i][1] * 20, 20, 20)
+        }
     }
 }
 
@@ -162,9 +172,10 @@ class Board {
         const drawCtx = draw.getContext("2d");
 
         let grid;
+        let walls = [];
 
         try{
-            let response = await fetch("http://localhost/projet-js-snake/public/config.json");
+            let response = await fetch("./config.json");
     
             if(response.ok){
                 let data = await response.json();
@@ -178,6 +189,7 @@ class Board {
             throw err;
         }
 
+        
         let i = 0;
         let redSq = {x: 0, y: 0, color: "red"};
         let greenSq = {x: grid.width - 1, y: grid.height - 1, color: "green"};
@@ -237,16 +249,30 @@ class Board {
     
     async function start(){
         try{
-            let response = await fetch("http://localhost/projet-js-snake/public/config.json");
+            let response = await fetch("./config.json");
     
             if(response.ok){
                 let data = await response.json();
-    
-                board = new Board(data.board.width, data.board.height);
+                board = new Board(data.board.width, data.board.height, data.walls);
                 food = new Food(data.food.position, data.food.color, data.food.type)
                 snake = new Snake(data.snake.body, data.snake.speed, data.snake.direction);
             }
             else{
+                throw ("Erreur : ", response.status);
+            }
+        }
+        catch(err){
+            throw err;
+        }
+        try{
+            let response = await fetch('./json/level1.json');
+
+            if(response.ok){
+                let data = await response.json();
+
+                board.setWalls(data.walls);
+            }
+            else {
                 throw ("Erreur : ", response.status);
             }
         }
@@ -290,9 +316,9 @@ class Board {
 
                     ctx.fillStyle = "#999999";
                     ctx.font = "35px Segoe UI Black";
-                    ctx.fillText('VOUS AVEZ PERDU', 37, 190);
+                    ctx.fillText('YOU LOST', 37, 190);
                     ctx.font = "15px Segoe UI Black";
-                    ctx.fillText('Cliquez sur REPLAY pour rejouer', 80, 220);
+                    ctx.fillText('PRESS ON REPLAY TO RESTART THE GAME', 80, 220);
                     clearInterval(interval);
                     playing = false;
                 }
