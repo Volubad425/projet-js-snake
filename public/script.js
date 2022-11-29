@@ -1,6 +1,8 @@
 let board, food, snake, speed, walls = [];
 let score, highscore = 0, menuInterval, gameInterval, playing = false;
 
+let bgm;
+
 const canvas = document.getElementById("snake");
 const ctx = canvas.getContext("2d");
 
@@ -17,6 +19,11 @@ const levelsButton = document.getElementById("levelsButton");
 const settings = document.getElementById("settings");
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
+
+const buttons = document.getElementsByTagName("button");
+
+
+
 
 // Objet serpent
 class Snake {
@@ -199,6 +206,14 @@ class Board {
 }
 
 // Effets audios
+function playBGM(sound){
+    bgm = new Audio(sound);
+    bgm.load();
+    bgm.loop = true;
+    bgm.volume = 0.4;
+    bgm.play();
+}
+
 function playAudio(sound){
     let audio = new Audio(sound);
     audio.load();
@@ -206,8 +221,16 @@ function playAudio(sound){
     audio.play();
 }
 
+console.log(buttons.length);
+for(let i = 0; i<buttons.length; i++){
+    buttons[i].addEventListener("mouseenter", function (){
+        playAudio("/assets/bip.mp3");
+    });
+}
+
 // Menu
 async function showMenu(){
+    playBGM("/assets/MainMenu-bgm.mp3");
     let grid;
 
     try{
@@ -281,9 +304,16 @@ playButton.addEventListener("click", function () {
     interface.class = "interface-var";
     interface.style.display = "block";
     menu.style.display = "none";
+    bgm.volume = 0.4;
+    bgm.volume = 0.3;
+    bgm.volume = 0.2;
+    bgm.volume = 0.1;
+    bgm.pause();
+    playBGM("/assets/normal-bgm.mp3");
     playing = true;
 
     async function start(){
+        
         try{
             let response = await fetch("./json/normal.json");
     
@@ -366,16 +396,18 @@ playButton.addEventListener("click", function () {
         start();
     }
 
-    replayButton.addEventListener("click", reset);
-
     MMButton.addEventListener("click", function() {
         replayButton.removeEventListener("click", reset);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         interface.style.display = "none";
         menu.style.display = "block";
         playing = false;
+        bgm.pause();
+        playBGM("/assets/MainMenu-bgm.mp3");
         clearInterval(gameInterval);
     });
+
+    replayButton.addEventListener("click", reset);
 
     start();
 });
@@ -385,6 +417,8 @@ hardcoreButton.addEventListener("click", function(){
     interface.class = "interface-var";
     interface.style.display = "block";
     menu.style.display = "none";
+    bgm.pause();
+    playBGM("/assets/hardcore-bgm.mp3");
     playing = true;
 
     async function start(){
@@ -489,11 +523,13 @@ hardcoreButton.addEventListener("click", function(){
     replayButton.addEventListener("click", reset);
 
     MMButton.addEventListener("click", function() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         replayButton.removeEventListener("click", reset);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         interface.style.display = "none";
         menu.style.display = "block";
         playing = false;
+        bgm.pause();
+        playBGM("/assets/MainMenu-bgm.mp3");
         clearInterval(gameInterval);
     });
 
