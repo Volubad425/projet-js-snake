@@ -1,6 +1,16 @@
 body{
     background-color: #10101f;
-    color: white;
+    color: #424885;
+    font-family: 'Segoe UI Black', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 10px;
+    width: 100%;
+    margin: auto;
+    text-align: center;
+}
+
+.light-mode{
+    background-color: white;
+    color: black;
     font-family: 'Segoe UI Black', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 10px;
     width: 100%;
@@ -9,6 +19,10 @@ body{
 }
 
 .mainMenu{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     margin-top: 40px;
 }
 
@@ -39,7 +53,14 @@ body{
     flex-direction: column;
     justify-content: center;
     margin: 30px;
-    color: #424885;
+}
+
+.texte-light{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 30px;
+    color: black;
 }
 
 #texte {
@@ -48,9 +69,14 @@ body{
     margin: 0;
 }
 
+.settings{
+    display: none;
+}
+
 .levels{
     display: none;
 }
+
 .score{
     font-size: 45px;
     margin-top: 5px;
@@ -59,6 +85,7 @@ body{
 .buttons{
     display: flex;
     flex-direction: column;
+    width: 40vw;
 }
 
 button{
@@ -74,4 +101,19 @@ button{
 
 button:hover{
     background-color: #6d79e8;
-}    
+}
+
+.button-light{
+    background-color: black;
+    border: none;
+    font-family: 'Segoe UI Black', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    text-transform: uppercase;
+    border-radius: 15px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.button-light:hover{
+    background-color: rgb(81, 81, 81);
+}

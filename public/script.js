@@ -1,3 +1,5 @@
+let theme = "dark";
+
 let board, food, snake, speed, walls = [];
 let score, highscore = 0, menuInterval, gameInterval, playing = false;
 
@@ -13,17 +15,20 @@ const scoretxt = document.getElementsByClassName("score");
 
 const menu = document.querySelector(".mainMenu");
 const interface = document.querySelector(".interface");
+const settings = document.querySelector(".settings");
+
 const playButton = document.getElementById("playButton");
 const hardcoreButton = document.getElementById("hardcoreButton");
 const levelsButton = document.getElementById("levelsButton");
-const settings = document.getElementById("settings");
+const settingsButton = document.getElementById("settings");
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
 
+
+const changeTheme = document.getElementById("theme");
+const back = document.getElementById("back");
+
 const buttons = document.getElementsByTagName("button");
-
-
-
 
 // Objet serpent
 class Snake {
@@ -34,10 +39,17 @@ class Snake {
         this.speed = speed;
     }
     draw(){
-        for(const part of this.body){
+        if(theme === "dark"){
             ctx.fillStyle = "white";
-            ctx.shadowBlur = 20;
             ctx.shadowColor = "white";
+        }
+        else{
+            ctx.fillStyle = "black";
+            ctx.shadowColor = "black";
+        }
+
+        for(const part of this.body){
+            ctx.shadowBlur = 20;
             ctx.fillRect(20 * part.x, 20 * part.y, 20, 20);
             ctx.shadowBlur = 0;
         }
@@ -206,6 +218,7 @@ class Board {
 }
 
 // Effets audios
+/*
 function playBGM(sound){
     bgm = new Audio(sound);
     bgm.load();
@@ -213,6 +226,7 @@ function playBGM(sound){
     bgm.volume = 0.4;
     bgm.play();
 }
+*/
 
 function playAudio(sound){
     let audio = new Audio(sound);
@@ -221,16 +235,18 @@ function playAudio(sound){
     audio.play();
 }
 
+/*
 console.log(buttons.length);
 for(let i = 0; i<buttons.length; i++){
     buttons[i].addEventListener("mouseenter", function (){
         playAudio("/assets/bip.mp3");
     });
 }
+*/
 
 // Menu
 async function showMenu(){
-    playBGM("/assets/MainMenu-bgm.mp3");
+    // playBGM("/assets/MainMenu-bgm.mp3");
     let grid;
 
     try{
@@ -255,9 +271,16 @@ async function showMenu(){
 
     menuInterval = setInterval(function(){
         if(i < grid.cases.length){
-            drawCtx.shadowColor = "white";
+            if(theme === "dark"){
+                drawCtx.fillStyle = "white";
+                drawCtx.shadowColor = "white";
+            }
+            else{
+                drawCtx.fillStyle = "black";
+                drawCtx.shadowColor = "black";
+            }
+
             drawCtx.shadowBlur = 20;
-            drawCtx.fillStyle = "white";
             drawCtx.fillRect(40 * grid.cases[i].x, 40 * grid.cases[i].y, 40, 40);
             drawCtx.shadowBlur = 0;
 
@@ -266,10 +289,17 @@ async function showMenu(){
         else{
             drawCtx.clearRect(0, 0, draw.width, draw.height);
 
-            for(const element of grid.cases){
-                drawCtx.shadowColor = "white";
-                drawCtx.shadowBlur = 20;
+            if(theme === "dark"){
                 drawCtx.fillStyle = "white";
+                drawCtx.shadowColor = "white";
+            }
+            else{
+                drawCtx.fillStyle = "black";
+                drawCtx.shadowColor = "black";
+            }
+
+            for(const element of grid.cases){
+                drawCtx.shadowBlur = 20;
                 drawCtx.fillRect(40 * element.x, 40 * element.y, 40, 40);
                 drawCtx.shadowBlur = 0;
             }
@@ -296,20 +326,19 @@ async function showMenu(){
             else if(greenSq.x >= grid.width - 1 && greenSq.y > 0) greenSq.y--;
             else if(greenSq.x > 0 && greenSq.y <= 0) greenSq.x--;
         }
-    }, 100);
+    }, 80);
 };
 
 // Normal mode
 playButton.addEventListener("click", function () {
-    interface.class = "interface-var";
     interface.style.display = "block";
     menu.style.display = "none";
-    bgm.volume = 0.4;
-    bgm.volume = 0.3;
-    bgm.volume = 0.2;
-    bgm.volume = 0.1;
-    bgm.pause();
-    playBGM("/assets/normal-bgm.mp3");
+    // bgm.volume = 0.4;
+    // bgm.volume = 0.3;
+    // bgm.volume = 0.2;
+    // bgm.volume = 0.1;
+    // bgm.pause();
+    // playBGM("/assets/normal-bgm.mp3");
     playing = true;
 
     async function start(){
@@ -400,10 +429,10 @@ playButton.addEventListener("click", function () {
         replayButton.removeEventListener("click", reset);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         interface.style.display = "none";
-        menu.style.display = "block";
+        menu.style.display = "flex";
         playing = false;
-        bgm.pause();
-        playBGM("/assets/MainMenu-bgm.mp3");
+        // bgm.pause();
+        // playBGM("/assets/MainMenu-bgm.mp3");
         clearInterval(gameInterval);
     });
 
@@ -414,11 +443,10 @@ playButton.addEventListener("click", function () {
 
 // Hardcore mode
 hardcoreButton.addEventListener("click", function(){
-    interface.class = "interface-var";
     interface.style.display = "block";
     menu.style.display = "none";
-    bgm.pause();
-    playBGM("/assets/hardcore-bgm.mp3");
+    // bgm.pause();
+    // playBGM("/assets/hardcore-bgm.mp3");
     playing = true;
 
     async function start(){
@@ -526,14 +554,41 @@ hardcoreButton.addEventListener("click", function(){
         replayButton.removeEventListener("click", reset);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         interface.style.display = "none";
-        menu.style.display = "block";
+        menu.style.display = "flex";
         playing = false;
-        bgm.pause();
-        playBGM("/assets/MainMenu-bgm.mp3");
+        // bgm.pause();
+        // playBGM("/assets/MainMenu-bgm.mp3");
         clearInterval(gameInterval);
     });
 
     start();
+});
+
+settingsButton.addEventListener('click', function(){
+    menu.style.display = "none";
+    settings.style.display = "block";
+});
+
+changeTheme.addEventListener('click', function(){
+    if(theme === "dark"){
+        document.body.classList.add("light-mode");
+        for(let i = 0; i < buttons.length; i++){
+            buttons[i].classList.add("button-light");
+        }
+        theme = "white";
+    }
+    else{
+        document.body.classList.remove("light-mode");
+        for(let i = 0; i < buttons.length; i++){
+            buttons[i].classList.remove("button-light");
+        }
+        theme = "dark";
+    }
+});
+
+back.addEventListener('click', function(){
+    menu.style.display = "flex";
+    settings.style.display = "none";
 });
 
 showMenu();
