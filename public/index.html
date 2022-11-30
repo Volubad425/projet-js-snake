@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Snake the Game</title>
     <link rel="stylesheet" href="styles.css">
@@ -12,29 +13,69 @@
     <div class="mainMenu">
         <canvas id="draw" width="920" height="360"></canvas>
         <div class="buttons">
-            <button id="playButton"><i class="fa fa-play"> </i> Start game</button>
+            <button id="playButton"><i class="fa fa-play"></i> Start game</button>
             <button id="hardcoreButton"><i class="fa fa-fire"></i> Hardcore</button>
             <button id="levelsButton"><i class="fa fa-egg"></i> Levels</button>
-            <button id="settings"><i class="fa fa-gear"></i> Settings</button>
+            <button id="guideButton"><i class="fa fa-info-circle"></i> How to play</button>
+            <button id="settingsButton"><i class="fa fa-gear"></i> Settings</button>
             <button id="credits"><i class="fa fa-cloud"></i> Credits</button>
         </div>
     </div>
-    
+
     <div class="levels">
-        <button id="level1"> Level 1</button>
+        <button id="level1">Level 1</button>
+    </div>
+
+    <div class="guide">
+        <div>
+            <img src="/assets/snake-body.png">
+            <p>This is you !</p>
+        </div>
+        <div>
+            <i class="fa fa-arrow-up"></i>
+            <p>Press the up keyboard arrow to change the direction of the snake upwards</p>
+        </div>
+        <div>
+            <i class="fa fa-arrow-down"></i>
+            <p>Press the down keyboard arrow to change the direction of the snake upwards</p>
+        </div>
+        <div>
+            <i class="fa fa-arrow-left"></i>
+            <p>Press the left keyboard arrow to change the direction of the snake to the left</p>
+        </div>
+        <div>
+            <i class="fa fa-arrow-right"></i>
+            <p>Press the right keyboard arrow to change the direction of the snake to the right</p>
+        </div>
+        <div>
+            <img src="/assets/red-fruit.png">
+            <p>Eating a red fruit increases your score by one point</p>
+        </div>
+        <div>
+            <img src="/assets/green-fruit.png">
+            <p>Eating a green fruit increases your score by two points and slow down the snake</p>
+        </div>
+        <div>
+            <img src="/assets/orange-fruit.png" width="20" height="20">
+            <p>Eating an orange fruit increases your score by three point and speed up the snake</p>
+        </div>
+        <div>
+            <img src="/assets/wall.png">
+            <p>Hitting a wall or your own body will make you lose the game</p>
+        </div>
     </div>
 
     <div class="settings">
         <div class="buttons">
             <div class="volume">
                 <p>Volume</p>
-                <button id="volMoins">-</button>
+                <button id="volMoins"><i class="fa fa-volume-down"></i></button>
                 <p id="volLevel"></p>
-                <button id="volPlus">+</button>
+                <button id="volPlus"><i class="fa fa-volume-up"></i></button>
             </div>
             <button id="theme"><i class="fa fa-moon"> </i> Dark Mode</button>
             <button id="reset"><i class="fa fa-window-restore"></i> Reset</button>
-            <button id="back1"><i class="fa fa-bars"></i> Back</button>
+            <button id="backButton"><i class="fa fa-bars"></i> Back</button>
         </div>
     </div>
 
@@ -57,4 +98,5 @@
     </div>
     <script src="script.js"></script>
 </body>
+
 </html>

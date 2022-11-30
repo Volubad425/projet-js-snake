@@ -1,10 +1,11 @@
 let theme;
 let storage;
 
-let board, food, snake, speed, walls = [];
+let board, food, snake, walls = [];
 let score, highscore = 0, menuInterval, gameInterval, playing = false;
 
 let bgm = new Audio();
+
 
 const canvas = document.getElementById("snake");
 const ctx = canvas.getContext("2d");
@@ -17,6 +18,8 @@ const scoretxt = document.getElementsByClassName("score");
 const menu = document.querySelector(".mainMenu");
 const interface = document.querySelector(".interface");
 const settings = document.querySelector(".settings");
+const guide = document.querySelector(".guide");
+const levels = document.querySelector(".levels");
 
 const volumeMoins = document.getElementById("volMoins");
 const volumeLevP = document.getElementById("volLevel");
@@ -24,7 +27,8 @@ const volumePlus = document.getElementById("volPlus");
 const playButton = document.getElementById("playButton");
 const hardcoreButton = document.getElementById("hardcoreButton");
 const levelsButton = document.getElementById("levelsButton");
-const settingsButton = document.getElementById("settings");
+const guideButton = document.getElementById("guideButton");
+const settingsButton = document.getElementById("settingsButton");
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
 
@@ -32,15 +36,14 @@ const MMButton = document.getElementById("MMButton");
 const changeThemeButton = document.getElementById("theme");
 const themeIcon = document.querySelector(".fa-moon");
 const resetButton = document.getElementById("reset");
-const backButton1 = document.getElementById("back1");
+const backButton1 = document.getElementById("backButton");
 
 const buttons = document.getElementsByTagName("button");
 
-
 storage = localStorage.getItem("NASnaketheme");
-if(storage){
+if (storage) {
     theme = storage;
-    if(theme === "light"){
+    if (theme === "light") {
         document.body.classList.add("light-mode");
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].classList.add("button-light");
@@ -51,15 +54,15 @@ if(storage){
         changeThemeButton.appendChild(document.createTextNode(" Light Mode"));
     }
 }
-else{
+else {
     theme = "dark";
 }
 
 storage = localStorage.getItem("NASnakevolume");
-if(storage){
+if (storage) {
     volumeLevP.textContent = storage;
 }
-else{
+else {
     volumeLevP.textContent = "10";
 }
 
@@ -252,6 +255,7 @@ class Board {
 
 // Effets audios
 function playBGM(sound) {
+    bgm.pause();
     bgm = new Audio(sound);
     bgm.load();
     bgm.loop = true;
@@ -265,12 +269,6 @@ function playAudio(sound) {
     audio.load();
     audio.loop = false;
     audio.play();
-}
-
-for (let i = 0; i < buttons.length; i++) {
-    buttons[i].addEventListener("click", function () {
-        playAudio("/assets/bip.mp3");
-    });
 }
 
 // Menu
@@ -379,10 +377,10 @@ function game(jsonLocation) {
                 board = new Board(data.board.width, data.board.height, data.walls);
                 food = new Food(data.food.position, data.food.color, data.food.type)
                 snake = new Snake(data.snake.body, data.snake.speed, data.snake.direction);
-                
-                if(gamemode != "normal"){
+
+                if (gamemode != "normal") {
                     walls = [];
-                    for(const wall of data.walls){
+                    for (const wall of data.walls) {
                         walls.push(new Wall(wall.x, wall.y));
                     }
                 }
@@ -403,7 +401,7 @@ function game(jsonLocation) {
                 playAudio('./assets/bump.mp3');
                 return true;
             }
-            if(gamemode != "normal" && snake.hitWall()){
+            if (gamemode != "normal" && snake.hitWall()) {
                 playAudio('./assets/bump.mp3');
                 return true;
             }
@@ -425,10 +423,10 @@ function game(jsonLocation) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 board.draw();
                 if (collision()) {
-                    if(gamemode == "normal"){
+                    if (gamemode == "normal") {
                         localStorage.setItem("NASnakeHSnormal", highscore);
                     }
-                    else if(gamemode == "hardcore"){
+                    else if (gamemode == "hardcore") {
                         localStorage.setItem("NASnakeHShardcore", highscore);
                     }
 
@@ -444,7 +442,7 @@ function game(jsonLocation) {
                     if (snake.eat(food)) {
                         playAudio('./assets/eating.mp3');
                         snake.grow();
-                        if(gamemode === "hardcore"){
+                        if (gamemode === "hardcore") {
                             for (let i = 0; i < walls.length; i++) {
                                 walls[i].generate();
                             }
@@ -452,7 +450,7 @@ function game(jsonLocation) {
                         food.update();
                     }
 
-                    if(gamemode === "hardcore"){
+                    if (gamemode === "hardcore") {
                         for (let i = 0; i < walls.length; i++) {
                             walls[i].draw();
                         }
@@ -468,17 +466,17 @@ function game(jsonLocation) {
         score = 0;
         scoretxt[0].textContent = score;
 
-        if(gamemode == "normal"){
+        if (gamemode == "normal") {
             storage = localStorage.getItem("NASnakeHSnormal");
         }
-        else if(gamemode == "hardcore"){
+        else if (gamemode == "hardcore") {
             storage = localStorage.getItem("NASnakeHShardcore");
         }
 
-        if(storage){
+        if (storage) {
             highscore = Number(storage);
         }
-        else{
+        else {
             highscore = 0;
         }
 
@@ -488,12 +486,12 @@ function game(jsonLocation) {
         food.draw();
         board.draw();
 
-        if(gamemode != "normal"){
+        if (gamemode != "normal") {
             for (let i = 0; i < walls.length; i++) {
                 walls[i].draw();
             }
         }
-        
+
         update(snake.speed);
     };
 
@@ -521,14 +519,14 @@ function game(jsonLocation) {
 }
 
 // Normal mode
-playButton.addEventListener("click", function(){
+playButton.addEventListener("click", function () {
     bgm.pause();
     gamemode = "normal";
     game("./json/normal.json");
 });
 
 // Hardcore mode
-hardcoreButton.addEventListener("click", function(){
+hardcoreButton.addEventListener("click", function () {
     bgm.pause();
     gamemode = "hardcore";
     game("./json/hardcore.json")
@@ -537,6 +535,11 @@ hardcoreButton.addEventListener("click", function(){
 settingsButton.addEventListener('click', function () {
     menu.style.display = "none";
     settings.style.display = "flex";
+});
+
+guideButton.addEventListener('click', function () {
+    menu.style.display = "none";
+    guide.style.display = "flex";
 });
 
 changeThemeButton.addEventListener('click', function () {
@@ -569,14 +572,15 @@ changeThemeButton.addEventListener('click', function () {
     localStorage.setItem("NASnaketheme", theme);
 });
 
-resetButton.addEventListener('click', function(){
-    if(confirm("Are you sure to reset all the settings")){
+resetButton.addEventListener('click', function () {
+    if (confirm("Are you sure to reset all the settings")) {
         localStorage.clear();
         window.location.reload();
     };
 });
 
 backButton1.addEventListener('click', function () {
+    playBGM("/assets/MainMenu-bgm.mp3");
     menu.style.display = "flex";
     settings.style.display = "none";
 });
@@ -594,6 +598,26 @@ volumePlus.addEventListener("click", function () {
         volumeLevP.textContent++;
     localStorage.setItem("NASnakevolume", volumeLevP.textContent);
 });
+
+
+for (let i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener("click", function () {
+        playAudio("/assets/bip.mp3");
+    });
+}
+
+function addMainMenuB(element) {
+    let button = backButton1.cloneNode(true);
+    button.addEventListener('click', function () {
+        playBGM("/assets/MainMenu-bgm.mp3");
+        menu.style.display = "flex";
+        element.style.display = "none";
+    });
+    element.appendChild(button);
+}
+
+addMainMenuB(levels);
+addMainMenuB(guide);
 
 playAudio("/assets/MainMenu-bgm.mp3");
 showMenu();
