@@ -448,7 +448,7 @@ function game(jsonLocation) {
 playButton.addEventListener("click", function(){
     bgm.pause();
     gamemode = "normal";
-    game("./json/normal.json")
+    game("./json/normal.json");
 });
 
 // Hardcore mode
