@@ -444,7 +444,7 @@ function game(jsonLocation) {
                     if (snake.eat(food)) {
                         playAudio('./assets/eating.mp3');
                         snake.grow();
-                        if(gamemode != "normal"){
+                        if(gamemode === "hardcore"){
                             for (let i = 0; i < walls.length; i++) {
                                 walls[i].generate();
                             }
@@ -452,7 +452,7 @@ function game(jsonLocation) {
                         food.update();
                     }
 
-                    if(gamemode != "normal"){
+                    if(gamemode === "hardcore"){
                         for (let i = 0; i < walls.length; i++) {
                             walls[i].draw();
                         }
