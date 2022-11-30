@@ -240,13 +240,13 @@ function playAudio(sound) {
 console.log(buttons.length);
 for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", function () {
-        playAudio("/assets/bip.mp3");
+        playAudio("./assets/bip.mp3");
     });
 }
 
 // Menu
 async function showMenu() {
-    playBGM("/assets/MainMenu-bgm.mp3");
+    playBGM("./assets/MainMenu-bgm.mp3");
     let grid;
 
     try {
@@ -333,11 +333,11 @@ function game(jsonLocation) {
     interface.style.display = "block";
     menu.style.display = "none";
     if (gamemode === "normal")
-        playBGM("/assets/normal-bgm.mp3");
+        playBGM("./assets/normal-bgm.mp3");
     else if (gamemode === "hardcore")
-        playBGM("/assets/hardcore-bgm.mp3");
+        playBGM("./assets/hardcore-bgm.mp3");
     else if (gamemode === "aventure")
-        playBGM("/assets/adventure-bgm.mp3");
+        playBGM("./assets/adventure-bgm.mp3");
     playing = true;
 
     async function start() {
@@ -435,7 +435,7 @@ function game(jsonLocation) {
         menu.style.display = "flex";
         playing = false;
         bgm.pause();
-        playBGM("/assets/MainMenu-bgm.mp3");
+        playBGM("./assets/MainMenu-bgm.mp3");
         clearInterval(gameInterval);
     });
 
@@ -497,7 +497,7 @@ volumePlus.addEventListener("click", function () {
         volumeLevP.textContent++;
 });
 
-playAudio("/assets/MainMenu-bgm.mp3");
+playAudio("./assets/MainMenu-bgm.mp3");
 showMenu();
 
 document.addEventListener('keyup', function (evt) {
