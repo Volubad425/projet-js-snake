@@ -1,4 +1,5 @@
-let theme = "dark";
+let theme;
+let storage;
 
 let board, food, snake, speed, walls = [];
 let score, highscore = 0, menuInterval, gameInterval, playing = false;
@@ -28,10 +29,39 @@ const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
 
 
-const changeTheme = document.getElementById("theme");
-const back = document.getElementById("back");
+const changeThemeButton = document.getElementById("theme");
+const themeIcon = document.querySelector(".fa-moon");
+const resetButton = document.getElementById("reset");
+const backButton1 = document.getElementById("back1");
 
 const buttons = document.getElementsByTagName("button");
+
+
+storage = localStorage.getItem("NASnaketheme");
+if(storage){
+    theme = storage;
+    if(theme === "light"){
+        document.body.classList.add("light-mode");
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].classList.add("button-light");
+        }
+        themeIcon.classList.value = "fa fa-sun";
+        changeThemeButton.textContent = "";
+        changeThemeButton.appendChild(themeIcon);
+        changeThemeButton.appendChild(document.createTextNode(" Light Mode"));
+    }
+}
+else{
+    theme = "dark";
+}
+
+storage = localStorage.getItem("NASnakevolume");
+if(storage){
+    volumeLevP.textContent = storage;
+}
+else{
+    volumeLevP.textContent = "10";
+}
 
 // Objet serpent
 class Snake {
@@ -237,7 +267,6 @@ function playAudio(sound) {
     audio.play();
 }
 
-console.log(buttons.length);
 for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", function () {
         playAudio("/assets/bip.mp3");
@@ -268,7 +297,7 @@ async function showMenu() {
     let i = 0;
     let redSq = { x: 0, y: 0, color: "red" };
     let greenSq = { x: grid.width - 1, y: grid.height - 1, color: "green" };
-
+    drawCtx.clearRect(0, 0, draw.width, draw.height);
     menuInterval = setInterval(function () {
         if (i < grid.cases.length) {
             if (theme === "dark") {
@@ -350,6 +379,13 @@ function game(jsonLocation) {
                 board = new Board(data.board.width, data.board.height, data.walls);
                 food = new Food(data.food.position, data.food.color, data.food.type)
                 snake = new Snake(data.snake.body, data.snake.speed, data.snake.direction);
+                
+                if(gamemode != "normal"){
+                    walls = [];
+                    for(const wall of data.walls){
+                        walls.push(new Wall(wall.x, wall.y));
+                    }
+                }
             }
             else {
                 throw ("Erreur : ", response.status);
@@ -364,6 +400,10 @@ function game(jsonLocation) {
             const head = snake.body[0];
 
             if (((head.x > board.width - 1 || head.y > board.height - 1) || (head.x < 0 || head.y < 0))) {
+                playAudio('./assets/bump.mp3');
+                return true;
+            }
+            if(gamemode != "normal" && snake.hitWall()){
                 playAudio('./assets/bump.mp3');
                 return true;
             }
@@ -385,6 +425,13 @@ function game(jsonLocation) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 board.draw();
                 if (collision()) {
+                    if(gamemode == "normal"){
+                        localStorage.setItem("NASnakeHSnormal", highscore);
+                    }
+                    else if(gamemode == "hardcore"){
+                        localStorage.setItem("NASnakeHShardcore", highscore);
+                    }
+
                     ctx.fillStyle = "#999999";
                     ctx.font = "35px Segoe UI Black";
                     ctx.fillText('YOU LOST', 110, 190);
@@ -397,7 +444,18 @@ function game(jsonLocation) {
                     if (snake.eat(food)) {
                         playAudio('./assets/eating.mp3');
                         snake.grow();
+                        if(gamemode != "normal"){
+                            for (let i = 0; i < walls.length; i++) {
+                                walls[i].generate();
+                            }
+                        }
                         food.update();
+                    }
+
+                    if(gamemode != "normal"){
+                        for (let i = 0; i < walls.length; i++) {
+                            walls[i].draw();
+                        }
                     }
 
                     snake.step();
@@ -410,14 +468,32 @@ function game(jsonLocation) {
         score = 0;
         scoretxt[0].textContent = score;
 
+        if(gamemode == "normal"){
+            storage = localStorage.getItem("NASnakeHSnormal");
+        }
+        else if(gamemode == "hardcore"){
+            storage = localStorage.getItem("NASnakeHShardcore");
+        }
+
+        if(storage){
+            highscore = Number(storage);
+        }
+        else{
+            highscore = 0;
+        }
+
+        scoretxt[1].textContent = highscore;
+
         snake.draw();
         food.draw();
         board.draw();
 
-        for (let i = 0; i < walls.length; i++) {
-            walls[i].draw();
+        if(gamemode != "normal"){
+            for (let i = 0; i < walls.length; i++) {
+                walls[i].draw();
+            }
         }
-
+        
         update(snake.speed);
     };
 
@@ -460,16 +536,20 @@ hardcoreButton.addEventListener("click", function(){
 
 settingsButton.addEventListener('click', function () {
     menu.style.display = "none";
-    settings.style.display = "block";
+    settings.style.display = "flex";
 });
 
-changeTheme.addEventListener('click', function () {
+changeThemeButton.addEventListener('click', function () {
     if (theme === "dark") {
         document.body.classList.add("light-mode");
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].classList.add("button-light");
         }
-        theme = "white";
+        theme = "light";
+        themeIcon.classList.value = "fa fa-sun";
+        changeThemeButton.textContent = "";
+        changeThemeButton.appendChild(themeIcon);
+        changeThemeButton.appendChild(document.createTextNode(" Light Mode"));
     }
     else {
         document.body.classList.remove("light-mode");
@@ -477,10 +557,26 @@ changeTheme.addEventListener('click', function () {
             buttons[i].classList.remove("button-light");
         }
         theme = "dark";
+        themeIcon.classList.value = "fa fa-moon";
+        changeThemeButton.textContent = "";
+        changeThemeButton.appendChild(themeIcon);
+        changeThemeButton.appendChild(document.createTextNode(" Dark Mode"));
     }
+
+    clearInterval(menuInterval);
+    showMenu();
+    console.log(themeIcon);
+    localStorage.setItem("NASnaketheme", theme);
 });
 
-back.addEventListener('click', function () {
+resetButton.addEventListener('click', function(){
+    if(confirm("Are you sure to reset all the settings")){
+        localStorage.clear();
+        window.location.reload();
+    };
+});
+
+backButton1.addEventListener('click', function () {
     menu.style.display = "flex";
     settings.style.display = "none";
 });
@@ -489,12 +585,14 @@ volumeMoins.addEventListener("click", function () {
     console.log(volumeLevP.textContent);
     if (volumeLevP.textContent > 0)
         volumeLevP.textContent--;
+    localStorage.setItem("NASnakevolume", volumeLevP.textContent);
 });
 
 volumePlus.addEventListener("click", function () {
     console.log(volumeLevP.textContent);
     if (volumeLevP.textContent < 10)
         volumeLevP.textContent++;
+    localStorage.setItem("NASnakevolume", volumeLevP.textContent);
 });
 
 playAudio("/assets/MainMenu-bgm.mp3");

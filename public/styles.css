@@ -71,6 +71,8 @@ body{
 
 .settings{
     display: none;
+    flex-direction: row;
+    justify-content: center;
 }
 
 .levels{

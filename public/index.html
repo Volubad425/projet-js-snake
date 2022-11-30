@@ -4,6 +4,7 @@
     <title>Snake the Game</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
     <link rel="icon" type="image/x-png" href="./assets/snake.ico">
 </head>
 
@@ -13,7 +14,7 @@
         <div class="buttons">
             <button id="playButton"><i class="fa fa-play"> </i> Start game</button>
             <button id="hardcoreButton"><i class="fa fa-fire"></i> Hardcore</button>
-            <button id="levelsButton"><i class="fa fa-level-up"></i> Levels</button>
+            <button id="levelsButton"><i class="fa fa-egg"></i> Levels</button>
             <button id="settings"><i class="fa fa-gear"></i> Settings</button>
             <button id="credits"><i class="fa fa-cloud"></i> Credits</button>
         </div>
@@ -24,15 +25,16 @@
     </div>
 
     <div class="settings">
-        <div class="volume">
-            <p>Volume</p>
-            <button id="volMoins">-</button>
-            <p id="volLevel">10</p>
-            <button id="volPlus">+</button>
-        </div>
         <div class="buttons">
-            <button id="theme"><i class="fa fa-moon"> </i>Dark Mode</button>
-            <button id="back"><i class="fa fa-bars"></i> Back</button>
+            <div class="volume">
+                <p>Volume</p>
+                <button id="volMoins">-</button>
+                <p id="volLevel"></p>
+                <button id="volPlus">+</button>
+            </div>
+            <button id="theme"><i class="fa fa-moon"> </i> Dark Mode</button>
+            <button id="reset"><i class="fa fa-window-restore"></i> Reset</button>
+            <button id="back1"><i class="fa fa-bars"></i> Back</button>
         </div>
     </div>
 
@@ -49,7 +51,7 @@
             </div>
             <div class="texte">
                 <p id="texte">Highscore</p>
-                <p class="score">0</p>
+                <p class="score"></p>
             </div>
         </div>
     </div>
