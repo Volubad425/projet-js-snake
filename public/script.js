@@ -1,56 +1,62 @@
-let theme;
-let storage;
+// Variables relatives au jeu
+let theme, storage;
 
-let board, food, snake, walls = [], goal, remaining, gamemode;
-let score, highscore = 0, menuInterval, gameInterval, playing = false;
+// Variables relatives au jeu lorsqu'il est lancé
+let board, food, snake, walls = [], goal, remaining;
+let score, highscore = 0, menuInterval, gameInterval, playing = false, gamemode;
 
+// Musique de fond
 let bgm = new Audio();
 
-
+// Canvas de l'interface de jeu
 const canvas = document.getElementById("snake");
 const ctx = canvas.getContext("2d");
 
+// Canvas de l'animation du menu
 const draw = document.getElementById("draw");
 const drawCtx = draw.getContext("2d");
 
-const scoretxt = document.getElementsByClassName("score");
+// Liste des objets HTML du jeu 
+const menu = document.querySelector(".mainMenu"); // Menu
+const interface = document.querySelector(".interface"); // Jeu
+const settings = document.querySelector(".settings"); // Paramètres
+const guide = document.querySelector(".guide"); // Guide (Comment jouer)
+const levels = document.querySelector(".levels"); // Liste des niveaux
+const credits = document.querySelector(".credits"); // Crédits
 
-const menu = document.querySelector(".mainMenu");
-const interface = document.querySelector(".interface");
-const settings = document.querySelector(".settings");
-const guide = document.querySelector(".guide");
-const levels = document.querySelector(".levels");
-const credits = document.querySelector(".credits");
+// Liste des textes de score (3)
+const scoretxt = document.getElementsByClassName("score"); // Valeur score
+const scoreTexte = document.querySelector(".scoreTexte"); // "Score"
+const highscoreTexte = document.querySelector(".highscoreTexte"); // "Highscore"
+const goalTexte = document.querySelector(".goalTexte"); // "Remaining"
 
-const scoreTexte = document.querySelector(".scoreTexte");
-const highscoreTexte = document.querySelector(".highscoreTexte");
-const goalTexte = document.querySelector(".goalTexte");
-
-const volumeMoins = document.getElementById("volMoins");
+// Volume musique de fond
 const volumeLevP = document.getElementById("volLevel");
-const volumePlus = document.getElementById("volPlus");
-const playButton = document.getElementById("playButton");
-const hardcoreButton = document.getElementById("hardcoreButton");
-const levelsButton = document.getElementById("levelsButton");
-const guideButton = document.getElementById("guideButton");
-const settingsButton = document.getElementById("settingsButton");
-const creditsButton = document.getElementById("credits")
-const replayButton = document.getElementById("replayButton");
-const MMButton = document.getElementById("MMButton");
 
-const changeThemeButton = document.getElementById("theme");
-const themeIcon = document.querySelector(".fa-moon");
-const resetButton = document.getElementById("reset");
-const backButton1 = document.getElementById("backButton");
+// Liste des bouttons
+const volumeMoins = document.getElementById("volMoins"); // Baisse le volume
+const volumePlus = document.getElementById("volPlus"); // Monte le volume
+const playButton = document.getElementById("playButton"); // Lance le mode normal
+const hardcoreButton = document.getElementById("hardcoreButton"); // Lance le mode hardcore
+const levelsButton = document.getElementById("levelsButton"); // Affiche la liste des niveaux
+const guideButton = document.getElementById("guideButton"); // Affiche la page comment jouer
+const settingsButton = document.getElementById("settingsButton"); // Affiche les paramètres
+const creditsButton = document.getElementById("credits"); // Affiche les crédits
+const replayButton = document.getElementById("replayButton"); // Relance le jeu
+const MMButton = document.getElementById("MMButton"); // Revient au menu
+const backButton1 = document.getElementById("backButton"); // Revient au menu
+const changeThemeButton = document.getElementById("theme"); // Change le theme
+const resetButton = document.getElementById("reset"); // Réintialise le jeu
+const level1Button = document.getElementById("level1"); // Lance le niveau 1
+const level2Button = document.getElementById("level2"); // Lance le niveau 2
+const level3Button = document.getElementById("level3"); // Lance le niveau 3
+const buttons = document.getElementsByTagName("button"); // Liste entiere des bouttons
 
-const level1Button = document.getElementById("level1");
-const level2Button = document.getElementById("level2");
-const level3Button = document.getElementById("level3");
+// Autres
+const themeIcon = document.querySelector(".fa-moon"); // Icone theme ("lune" et "soleil")
+const sbodyImg = document.getElementById("sbody"); // Image corps du snake du menu "Comment jouer", change de couleur en fonction du theme
 
-const buttons = document.getElementsByTagName("button");
-
-const sbodyImg = document.getElementById("sbody");
-
+// Chargement des paramètres de theme à partir du stockage local
 storage = localStorage.getItem("NASnaketheme");
 if (storage) {
     theme = storage;
@@ -70,6 +76,7 @@ else {
     theme = "dark";
 }
 
+// Chargement des paramètres de volume à partir du stockage local
 storage = localStorage.getItem("NASnakevolume");
 if (storage) {
     volumeLevP.textContent = storage;
@@ -78,7 +85,7 @@ else {
     volumeLevP.textContent = "10";
 }
 
-// Objet serpent
+// Classe relative au serpent
 class Snake {
     // Constructeur
     constructor(body, speed, direction) {
@@ -86,6 +93,8 @@ class Snake {
         this.direction = direction;
         this.speed = speed;
     }
+
+    // Dessin sur le canvas
     draw() {
         if (theme === "dark") {
             ctx.fillStyle = "white";
@@ -102,6 +111,8 @@ class Snake {
             ctx.shadowBlur = 0;
         }
     }
+
+    // Mouvement
     step() {
         this.body.pop();
 
@@ -122,6 +133,8 @@ class Snake {
                 break;
         }
     }
+
+    // Test si il mange le fruit
     eat(f) {
         if (this.body[0].x === f.position.x && this.body[0].y === f.position.y) {
             this.speed /= 1.05;
@@ -155,9 +168,13 @@ class Snake {
             return false;
         }
     }
+
+    // Grandissement
     grow() {
         this.body.push({ x: null, y: null });
     }
+
+    // Test si il touche un mur
     hitWall() {
         const head = this.body[0];
         for (const wall of walls) {
@@ -166,6 +183,7 @@ class Snake {
         return false;
     }
 
+    // Test si il touche son corps
     hitBody() {
         const head = this.body[0];
         for (let i = 1; i < this.body.length; i++) {
@@ -175,13 +193,16 @@ class Snake {
     }
 }
 
+// Classe relative au fruit
 class Food {
+    // Constructeur
     constructor(position, color, type) {
         this.position = position;
         this.color = color;
         this.type = type;
     }
 
+    // Dessin sur le canvas
     draw() {
         ctx.shadowColor = food.color;
         ctx.shadowBlur = 20;
@@ -190,6 +211,7 @@ class Food {
         ctx.shadowBlur = 0;
     }
 
+    // Change de position sur la grille
     update() {
         let status;
         do {
@@ -226,13 +248,15 @@ class Food {
     }
 }
 
-
+// Classe relative au mur=
 class Wall {
+    // Constructeur
     constructor(x = null, y = null) {
         this.x = x;
         this.y = y;
     }
 
+    // Generation d'un mur sur la grille
     generate() {
         let status;
         do {
@@ -247,6 +271,7 @@ class Wall {
         } while (!status);
     }
 
+    // Dessin sur le canvas
     draw() {
         ctx.shadowColor = "purple";
         ctx.shadowBlur = 20;
@@ -256,12 +281,15 @@ class Wall {
     }
 }
 
+// Classe relative à la grille
 class Board {
+    // Constructeur
     constructor(width, height) {
         this.width = width;
         this.height = height;
     }
 
+    // Dessin sur la canvas
     draw() {
         ctx.strokeStyle = "#454545";
         ctx.strokeRect(0, 0, canvas.width, canvas.height);
@@ -273,7 +301,7 @@ class Board {
     }
 }
 
-// Effets audios
+// Musique de fond
 function playBGM(sound) {
     bgm.pause();
     bgm = new Audio(sound);
@@ -283,6 +311,7 @@ function playBGM(sound) {
     bgm.play();
 }
 
+// Effets audios
 function playAudio(sound) {
     let audio = new Audio(sound);
     audio.volume = volumeLevP.textContent * 0.1;
@@ -376,6 +405,8 @@ async function showMenu() {
     }, 80);
 };
 
+
+// Fonction relative au lancement du jeu
 function game(jsonLocation) {
     interface.style.display = "block";
     menu.style.display = "none";
@@ -387,6 +418,7 @@ function game(jsonLocation) {
         playBGM("./assets/levels-bgm.mp3");
     playing = true;
 
+    // Lancement
     async function start() {
 
         try {
@@ -416,6 +448,7 @@ function game(jsonLocation) {
             throw err;
         }
 
+        // Test de collision
         function collision() {
             const head = snake.body[0];
 
@@ -436,6 +469,7 @@ function game(jsonLocation) {
             }
         }
 
+        // Mise a jour de la grille
         function update(speedParam = null) {
             gameInterval = setInterval(function () {
                 if (snake.speed != speedParam && speedParam != null) {
@@ -498,6 +532,7 @@ function game(jsonLocation) {
         score = 0;
         scoretxt[0].textContent = score;
 
+        // Chargement des records
         if (gamemode == "normal") {
             storage = localStorage.getItem("NASnakeHSnormal");
         }
@@ -505,6 +540,7 @@ function game(jsonLocation) {
             storage = localStorage.getItem("NASnakeHShardcore");
         }
 
+        // Ecriture des records
         if (storage) {
             highscore = Number(storage);
         }
@@ -512,11 +548,11 @@ function game(jsonLocation) {
             highscore = 0;
         }
 
+        // Ecriture du "Remaining" sur les niveaux
         if(gamemode === "levels"){
             remaining = goal;
             scoretxt[2].textContent = goal;
         } 
-        
 
         scoretxt[1].textContent = highscore;
 
@@ -527,6 +563,7 @@ function game(jsonLocation) {
         update(snake.speed);
     };
 
+    // Reinitialise la grille et relance
     function reset() {
         playing = true;
         clearInterval(gameInterval);
@@ -534,6 +571,7 @@ function game(jsonLocation) {
         start();
     }
 
+    // Event listener sur le boutton du retour au menu
     MMButton.addEventListener("click", function () {
         replayButton.removeEventListener("click", reset);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -545,12 +583,14 @@ function game(jsonLocation) {
         clearInterval(gameInterval);
     });
 
+    // Event listener sur le boutton rejouer
     replayButton.addEventListener("click", reset);
 
+    // Lancement du jeu
     start();
 }
 
-// Normal mode
+// Event listener sur le boutton jouer pour lancer le mode normal
 playButton.addEventListener("click", function () {
     bgm.pause();
     gamemode = "normal";
@@ -559,7 +599,7 @@ playButton.addEventListener("click", function () {
     game("./json/normal.json");
 });
 
-// Hardcore mode
+// Event listener sur le boutton hardcore pour lancer le mode hardcore
 hardcoreButton.addEventListener("click", function () {
     bgm.pause();
     gamemode = "hardcore";
@@ -568,7 +608,7 @@ hardcoreButton.addEventListener("click", function () {
     game("./json/hardcore.json")
 });
 
-// Levels mode
+// Event listener sur le boutton level 1 pour lancer le niveau 1
 level1Button.addEventListener("click", function () {
     bgm.pause();
     levels.style.display = "none";
@@ -576,6 +616,7 @@ level1Button.addEventListener("click", function () {
     game("./json/Levels/level1.json");
 });
 
+// Event listener sur le boutton level 2 pour lancer le niveau 2
 level2Button.addEventListener("click", function () {
     bgm.pause();
     levels.style.display = "none";
@@ -583,6 +624,7 @@ level2Button.addEventListener("click", function () {
     game("./json/Levels/level2.json");
 });
 
+// Event listener sur le boutton level 3 pour lancer le niveau 3
 level3Button.addEventListener("click", function () {
     bgm.pause();
     levels.style.display = "none";
@@ -590,7 +632,7 @@ level3Button.addEventListener("click", function () {
     game("./json/Levels/level3.json");
 });
 
-//Boutons Menu 
+// Event listener sur le boutton level 3 pour afficher les niveaux
 levelsButton.addEventListener('click', function () {
     menu.style.display = "none";
     levels.style.display = "flex";
@@ -600,18 +642,21 @@ levelsButton.addEventListener('click', function () {
     gamemode = "levels";
 });
 
+// Event listener sur le boutton level 3 pour afficher les paramètres
 settingsButton.addEventListener('click', function () {
     menu.style.display = "none";
     settings.style.display = "flex";
     playBGM("/assets/settings-bgm.mp3");
 });
 
+// Event listener sur le boutton level 3 pour afficher le guide
 guideButton.addEventListener('click', function () {
     menu.style.display = "none";
     guide.style.display = "flex";
     playBGM("/assets/guide-bgm.mp3");
 });
 
+// Event listener sur le boutton de changement de theme pour changer le thème du jeu ("Dark Mode" et "Light Mode")
 changeThemeButton.addEventListener('click', function () {
     if (theme === "dark") {
         document.body.classList.add("light-mode");
@@ -644,6 +689,7 @@ changeThemeButton.addEventListener('click', function () {
     localStorage.setItem("NASnaketheme", theme);
 });
 
+// Event listener sur le boutton reset de theme pour réinitialiser le jeu
 resetButton.addEventListener('click', function () {
     if (confirm("Are you sure to reset all the settings")) {
         localStorage.clear();
@@ -651,12 +697,14 @@ resetButton.addEventListener('click', function () {
     };
 });
 
+// Event listener sur le boutton reset de theme pour réinitialiser le jeu
 backButton1.addEventListener('click', function () {
     playBGM("/assets/MainMenu-bgm.mp3");
     menu.style.display = "flex";
     settings.style.display = "none";
 });
 
+// Event listener sur le boutton volume - pour baisser le volume
 volumeMoins.addEventListener("click", function () {
     console.log(volumeLevP.textContent);
     if (volumeLevP.textContent > 0)
@@ -665,6 +713,7 @@ volumeMoins.addEventListener("click", function () {
     bgm.volume = volumeLevP.textContent * 0.1;
 });
 
+// Event listener sur le boutton volume + pour monter le volume
 volumePlus.addEventListener("click", function () {
     console.log(volumeLevP.textContent);
     if (volumeLevP.textContent < 10)
@@ -673,19 +722,21 @@ volumePlus.addEventListener("click", function () {
     bgm.volume = volumeLevP.textContent * 0.1;
 });
 
+// Event listener sur le boutton crédits pour afficher les crédits
 creditsButton.addEventListener("click", function(){
     credits.style.display = "flex";
     menu.style.display = "none";
     playBGM("/assets/credits-bgm.mp3");
 })
 
-
+// Event listener sur les boutton pour ajouter un effet sonore
 for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", function () {
         playAudio("/assets/bip.mp3");
     });
 }
 
+// Fonction permettant de cloner un boutton back sur les différents menus
 function addMainMenuB(element) {
     let button = backButton1.cloneNode(true);
     button.addEventListener('click', function () {
@@ -696,13 +747,18 @@ function addMainMenuB(element) {
     element.childNodes[1].appendChild(button);
 }
 
+// Clonage du boutton sur les différents menus
 addMainMenuB(levels);
 addMainMenuB(guide);
 addMainMenuB(credits);
 
+// Clonage du boutton sur les différents menus
 playAudio("/assets/MainMenu-bgm.mp3");
+
+// Dessine la grille du menu
 showMenu();
 
+// Events listener sur les touches haut, bas, gauche, droite permettant de changer la position du serpent
 document.addEventListener('keyup', function (evt) {
     evt.preventDefault();
     switch (evt.key) {
@@ -728,3 +784,13 @@ document.addEventListener('keyup', function (evt) {
             break;
     }
 });
+
+/* 
+    Auteurs :
+        - DE SAINT JEAN Nicolas
+        - RANDRIAMANANTENA Aro
+
+*/
+
+
+// Fin du code (ligne 796)
