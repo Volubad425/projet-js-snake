@@ -453,6 +453,7 @@ function game(jsonLocation) {
                         playAudio('./assets/eating.mp3');
                         snake.grow();
                         if (gamemode === "hardcore") {
+                            walls.push(new Wall(null, null));
                             for (let i = 0; i < walls.length; i++) {
                                 walls[i].generate();
                             }
@@ -673,6 +674,7 @@ playAudio("/assets/MainMenu-bgm.mp3");
 showMenu();
 
 document.addEventListener('keyup', function (evt) {
+    evt.preventDefault();
     switch (evt.key) {
         case "ArrowDown":
             if (snake.direction != "HAUT") {
