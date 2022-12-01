@@ -655,7 +655,7 @@ settingsButton.addEventListener('click', function () {
 guideButton.addEventListener('click', function () {
     menu.style.display = "none";
     guide.style.display = "flex";
-    playBGM("/assets/guide-bgm.mp3");
+    playBGM("./assets/guide-bgm.mp3");
 });
 
 // Event listener sur le boutton de changement de theme pour changer le thème du jeu ("Dark Mode" et "Light Mode")
