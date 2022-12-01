@@ -1,7 +1,7 @@
 let theme;
 let storage;
 
-let board, food, snake, walls = [];
+let board, food, snake, walls = [], goal, remaining, gamemode;
 let score, highscore = 0, menuInterval, gameInterval, playing = false;
 
 let bgm = new Audio();
@@ -20,6 +20,7 @@ const interface = document.querySelector(".interface");
 const settings = document.querySelector(".settings");
 const guide = document.querySelector(".guide");
 const levels = document.querySelector(".levels");
+const credits = document.querySelector(".credits");
 
 const scoreTexte = document.querySelector(".scoreTexte");
 const highscoreTexte = document.querySelector(".highscoreTexte");
@@ -33,6 +34,7 @@ const hardcoreButton = document.getElementById("hardcoreButton");
 const levelsButton = document.getElementById("levelsButton");
 const guideButton = document.getElementById("guideButton");
 const settingsButton = document.getElementById("settingsButton");
+const creditsButton = document.getElementById("credits")
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
 
@@ -45,9 +47,9 @@ const level1Button = document.getElementById("level1");
 const level2Button = document.getElementById("level2");
 const level3Button = document.getElementById("level3");
 
-const goalNum = document.getElementById("goal");
-
 const buttons = document.getElementsByTagName("button");
+
+const sbodyImg = document.getElementById("sbody");
 
 storage = localStorage.getItem("NASnaketheme");
 if (storage) {
@@ -57,6 +59,7 @@ if (storage) {
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].classList.add("button-light");
         }
+        sbodyImg.src = "././assets/snake-body2.png";
         themeIcon.classList.value = "fa fa-sun";
         changeThemeButton.textContent = "";
         changeThemeButton.appendChild(themeIcon);
@@ -124,18 +127,26 @@ class Snake {
             this.speed /= 1.025;
             if (food.type === "SPEEDUP") {
                 score += 2;
+                if(gamemode === "levels") remaining -= 2;
                 this.speed /= 1.5;
             }
             else if (food.type === "SPEEDDOWN") {
                 score++;
+                if(gamemode === "levels") remaining--;
                 this.speed *= 1.5;
             }
             score++;
             scoretxt[0].textContent = score;
 
-            if (score > highscore) {
+            if (score > highscore && gamemode != "levels") {
                 highscore = score;
                 scoretxt[1].textContent = highscore;
+            }
+            else if(gamemode === "levels"){
+                remaining--;
+
+                if(remaining < 0) scoretxt[2].textContent = 0;
+                else scoretxt[2].textContent = remaining;
             }
 
             return true;
@@ -366,7 +377,6 @@ async function showMenu() {
 };
 
 function game(jsonLocation) {
-    let goal;
     interface.style.display = "block";
     menu.style.display = "none";
     if (gamemode === "normal")
@@ -387,12 +397,14 @@ function game(jsonLocation) {
                 board = new Board(data.board.width, data.board.height, data.walls);
                 food = new Food(data.food.position, data.food.color, data.food.type)
                 snake = new Snake(data.snake.body, data.snake.speed, data.snake.direction);
-                goal = data.goal;
-
+                
                 if (gamemode != "normal") {
                     walls = [];
                     for (const wall of data.walls) {
                         walls.push(new Wall(wall.x, wall.y));
+                    }
+                    if(gamemode === "levels"){
+                        goal = data.goal;
                     }
                 }
             }
@@ -443,8 +455,17 @@ function game(jsonLocation) {
                     ctx.fillStyle = "#999999";
                     ctx.font = "35px Segoe UI Black";
                     ctx.fillText('YOU LOST', 110, 190);
-                    ctx.font = "15px Segoe UI Black";
-                    ctx.fillText('Press on REPLAY button to restart the game or try another challenge', 75, 220);
+                    ctx.font = "10px Segoe UI Black";
+                    ctx.fillText('Press on REPLAY button to restart the game or try another challenge', 30, 220);
+                    clearInterval(gameInterval);
+                    playing = false;
+                }
+                else if (gamemode === "levels" && score >= goal) {
+                    ctx.fillStyle = "#999999";
+                    ctx.font = "35px Segoe UI Black";
+                    ctx.fillText('YOU WON', 110, 190);
+                    ctx.font = "10px Segoe UI Black";
+                    ctx.fillText('Press on REPLAY button to restart the game or try another challenge', 30, 220);
                     clearInterval(gameInterval);
                     playing = false;
                 }
@@ -466,16 +487,6 @@ function game(jsonLocation) {
                         }
                     }
 
-                    if (score >= goal) {
-                        ctx.fillStyle = "#999999";
-                        ctx.font = "35px Segoe UI Black";
-                        ctx.fillText('YOU WON', 110, 190);
-                        ctx.font = "15px Segoe UI Black";
-                        ctx.fillText('Press on REPLAY button to restart the game or try another challenge', 75, 220);
-                        clearInterval(gameInterval);
-                        playing = false;
-                    }
-
                     snake.step();
                     food.draw();
                     snake.draw();
@@ -485,8 +496,6 @@ function game(jsonLocation) {
 
         score = 0;
         scoretxt[0].textContent = score;
-
-        goalNum.textContent = goal;
 
         if (gamemode == "normal") {
             storage = localStorage.getItem("NASnakeHSnormal");
@@ -501,6 +510,12 @@ function game(jsonLocation) {
         else {
             highscore = 0;
         }
+
+        if(gamemode === "levels"){
+            remaining = goal;
+            scoretxt[2].textContent = goal;
+        } 
+        
 
         scoretxt[1].textContent = highscore;
 
@@ -597,6 +612,7 @@ changeThemeButton.addEventListener('click', function () {
             buttons[i].classList.add("button-light");
         }
         theme = "light";
+        sbodyImg.src = "././assets/snake-body2.png";
         themeIcon.classList.value = "fa fa-sun";
         changeThemeButton.textContent = "";
         changeThemeButton.appendChild(themeIcon);
@@ -609,6 +625,7 @@ changeThemeButton.addEventListener('click', function () {
         }
         theme = "dark";
         themeIcon.classList.value = "fa fa-moon";
+        sbodyImg.src = "././assets/snake-body.png";
         changeThemeButton.textContent = "";
         changeThemeButton.appendChild(themeIcon);
         changeThemeButton.appendChild(document.createTextNode(" Dark Mode"));
@@ -649,6 +666,11 @@ volumePlus.addEventListener("click", function () {
     bgm.volume = volumeLevP.textContent * 0.1;
 });
 
+creditsButton.addEventListener("click", function(){
+    credits.style.display = "block";
+    menu.style.display = "none";
+})
+
 
 for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", function () {
@@ -668,6 +690,7 @@ function addMainMenuB(element) {
 
 addMainMenuB(levels);
 addMainMenuB(guide);
+addMainMenuB(credits);
 
 playAudio("/assets/MainMenu-bgm.mp3");
 showMenu();
