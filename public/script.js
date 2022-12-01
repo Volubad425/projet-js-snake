@@ -124,7 +124,7 @@ class Snake {
     }
     eat(f) {
         if (this.body[0].x === f.position.x && this.body[0].y === f.position.y) {
-            this.speed /= 1.025;
+            this.speed /= 1.05;
             if (food.type === "SPEEDUP") {
                 score += 2;
                 if(gamemode === "levels") remaining -= 2;
@@ -133,7 +133,7 @@ class Snake {
             else if (food.type === "SPEEDDOWN") {
                 score++;
                 if(gamemode === "levels") remaining--;
-                this.speed *= 1.5;
+                this.speed *= 1.4;
             }
             score++;
             scoretxt[0].textContent = score;
@@ -572,18 +572,21 @@ hardcoreButton.addEventListener("click", function () {
 level1Button.addEventListener("click", function () {
     bgm.pause();
     levels.style.display = "none";
+    playBGM("/assets/level-bgm.mp3");
     game("./json/Levels/level1.json");
 });
 
 level2Button.addEventListener("click", function () {
     bgm.pause();
     levels.style.display = "none";
+    playBGM("/assets/level-bgm.mp3");
     game("./json/Levels/level2.json");
 });
 
 level3Button.addEventListener("click", function () {
     bgm.pause();
     levels.style.display = "none";
+    playBGM("/assets/level-bgm.mp3");
     game("./json/Levels/level3.json");
 });
 
@@ -593,17 +596,20 @@ levelsButton.addEventListener('click', function () {
     levels.style.display = "flex";
     highscoreTexte.style.display = "none";
     goalTexte.style.display = "flex";
+    playBGM("/assets/levels-bgm.mp3");
     gamemode = "levels";
 });
 
 settingsButton.addEventListener('click', function () {
     menu.style.display = "none";
     settings.style.display = "flex";
+    playBGM("/assets/settings-bgm.mp3");
 });
 
 guideButton.addEventListener('click', function () {
     menu.style.display = "none";
     guide.style.display = "flex";
+    playBGM("/assets/guide-bgm.mp3");
 });
 
 changeThemeButton.addEventListener('click', function () {
@@ -668,8 +674,9 @@ volumePlus.addEventListener("click", function () {
 });
 
 creditsButton.addEventListener("click", function(){
-    credits.style.display = "block";
+    credits.style.display = "flex";
     menu.style.display = "none";
+    playBGM("/assets/credits-bgm.mp3");
 })
 
 
