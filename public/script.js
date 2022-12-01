@@ -2,7 +2,7 @@
 let theme, storage;
 
 // Variables relatives au jeu lorsqu'il est lancé
-let board, food, snake, walls = [], goal, remaining;
+let board, food, snake, walls, goal, remaining;
 let score, highscore = 0, menuInterval, gameInterval, playing = false, gamemode;
 
 // Musique de fond
@@ -44,13 +44,14 @@ const settingsButton = document.getElementById("settingsButton"); // Affiche les
 const creditsButton = document.getElementById("credits"); // Affiche les crédits
 const replayButton = document.getElementById("replayButton"); // Relance le jeu
 const MMButton = document.getElementById("MMButton"); // Revient au menu
-const backButton1 = document.getElementById("backButton"); // Revient au menu
 const changeThemeButton = document.getElementById("theme"); // Change le theme
 const resetButton = document.getElementById("reset"); // Réintialise le jeu
 const level1Button = document.getElementById("level1"); // Lance le niveau 1
 const level2Button = document.getElementById("level2"); // Lance le niveau 2
 const level3Button = document.getElementById("level3"); // Lance le niveau 3
+const level4Button = document.getElementById("level4"); // Lance le niveau 3
 const buttons = document.getElementsByTagName("button"); // Liste entiere des bouttons
+const backButtons = document.getElementsByClassName("backButton"); // Liste des bouttons pour revenir au menu
 
 // Autres
 const themeIcon = document.querySelector(".fa-moon"); // Icone theme ("lune" et "soleil")
@@ -273,9 +274,9 @@ class Wall {
 
     // Dessin sur le canvas
     draw() {
-        ctx.shadowColor = "purple";
+        ctx.shadowColor = "blue";
         ctx.shadowBlur = 20;
-        ctx.fillStyle = "purple";
+        ctx.fillStyle = "blue";
         ctx.fillRect(20 * this.x, 20 * this.y, 20, 20);
         ctx.shadowBlur = 0;
     }
@@ -322,7 +323,6 @@ function playAudio(sound) {
 
 // Menu
 async function showMenu() {
-    playBGM("./assets/MainMenu-bgm.mp3");
     let grid;
 
     try {
@@ -414,8 +414,6 @@ function game(jsonLocation) {
         playBGM("./assets/normal-bgm.mp3");
     else if (gamemode === "hardcore")
         playBGM("./assets/hardcore-bgm.mp3");
-    else if (gamemode === "levels")
-        playBGM("./assets/levels-bgm.mp3");
     playing = true;
 
     // Lancement
@@ -435,6 +433,7 @@ function game(jsonLocation) {
                     for (const wall of data.walls) {
                         walls.push(new Wall(wall.x, wall.y));
                     }
+
                     if(gamemode === "levels"){
                         goal = data.goal;
                     }
@@ -477,7 +476,8 @@ function game(jsonLocation) {
                     update(snake.speed);
                 }
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                board.draw();
+                
+                
                 if (collision()) {
                     if (gamemode == "normal") {
                         localStorage.setItem("NASnakeHSnormal", highscore);
@@ -486,7 +486,7 @@ function game(jsonLocation) {
                         localStorage.setItem("NASnakeHShardcore", highscore);
                     }
 
-                    ctx.fillStyle = "#999999";
+                    ctx.fillStyle = theme == "dark" ? "#999999" : "black";
                     ctx.font = "35px Segoe UI Black";
                     ctx.fillText('YOU LOST', 110, 190);
                     ctx.font = "10px Segoe UI Black";
@@ -495,7 +495,8 @@ function game(jsonLocation) {
                     playing = false;
                 }
                 else if (gamemode === "levels" && score >= goal) {
-                    ctx.fillStyle = "#999999";
+                    playAudio('./assets/shoot.mp3');
+                    ctx.fillStyle = theme == "dark" ? "#999999" : "black";
                     ctx.font = "35px Segoe UI Black";
                     ctx.fillText('YOU WON', 110, 190);
                     ctx.font = "10px Segoe UI Black";
@@ -522,6 +523,7 @@ function game(jsonLocation) {
                         }
                     }
 
+                    board.draw();
                     snake.step();
                     food.draw();
                     snake.draw();
@@ -610,26 +612,26 @@ hardcoreButton.addEventListener("click", function () {
 
 // Event listener sur le boutton level 1 pour lancer le niveau 1
 level1Button.addEventListener("click", function () {
-    bgm.pause();
     levels.style.display = "none";
-    playBGM("/assets/level-bgm.mp3");
     game("./json/Levels/level1.json");
 });
 
 // Event listener sur le boutton level 2 pour lancer le niveau 2
 level2Button.addEventListener("click", function () {
-    bgm.pause();
     levels.style.display = "none";
-    playBGM("/assets/level-bgm.mp3");
     game("./json/Levels/level2.json");
 });
 
 // Event listener sur le boutton level 3 pour lancer le niveau 3
 level3Button.addEventListener("click", function () {
-    bgm.pause();
     levels.style.display = "none";
-    playBGM("/assets/level-bgm.mp3");
     game("./json/Levels/level3.json");
+});
+
+// Event listener sur le boutton level 3 pour lancer le niveau 3
+level4Button.addEventListener("click", function () {
+    levels.style.display = "none";
+    game("./json/Levels/level4.json");
 });
 
 // Event listener sur le boutton level 3 pour afficher les niveaux
@@ -638,15 +640,15 @@ levelsButton.addEventListener('click', function () {
     levels.style.display = "flex";
     highscoreTexte.style.display = "none";
     goalTexte.style.display = "flex";
-    playBGM("/assets/levels-bgm.mp3");
     gamemode = "levels";
+    playBGM("./assets/level-bgm.mp3");
 });
 
 // Event listener sur le boutton level 3 pour afficher les paramètres
 settingsButton.addEventListener('click', function () {
     menu.style.display = "none";
     settings.style.display = "flex";
-    playBGM("/assets/settings-bgm.mp3");
+    playBGM("./assets/settings-bgm.mp3");
 });
 
 // Event listener sur le boutton level 3 pour afficher le guide
@@ -685,23 +687,15 @@ changeThemeButton.addEventListener('click', function () {
 
     clearInterval(menuInterval);
     showMenu();
-    console.log(themeIcon);
     localStorage.setItem("NASnaketheme", theme);
 });
 
 // Event listener sur le boutton reset de theme pour réinitialiser le jeu
 resetButton.addEventListener('click', function () {
-    if (confirm("Are you sure to reset all the settings")) {
+    if (confirm("Are you sure to reset all the settings ?")) {
         localStorage.clear();
         window.location.reload();
     };
-});
-
-// Event listener sur le boutton reset de theme pour réinitialiser le jeu
-backButton1.addEventListener('click', function () {
-    playBGM("/assets/MainMenu-bgm.mp3");
-    menu.style.display = "flex";
-    settings.style.display = "none";
 });
 
 // Event listener sur le boutton volume - pour baisser le volume
@@ -726,34 +720,43 @@ volumePlus.addEventListener("click", function () {
 creditsButton.addEventListener("click", function(){
     credits.style.display = "flex";
     menu.style.display = "none";
-    playBGM("/assets/credits-bgm.mp3");
+    playBGM("./assets/credits-bgm.mp3");
 })
+
+// Event listener sur le boutton de retour des menus paramètres, niveaux, guide et crédits
+backButtons[0].addEventListener('click', function () {
+    playBGM("./assets/MainMenu-bgm.mp3");
+    menu.style.display = "flex";
+    levels.style.display = "none";
+});
+
+backButtons[1].addEventListener('click', function () {
+    playBGM("./assets/MainMenu-bgm.mp3");
+    menu.style.display = "flex";
+    guide.style.display = "none";
+});
+
+backButtons[2].addEventListener('click', function () {
+    playBGM("./assets/MainMenu-bgm.mp3");
+    menu.style.display = "flex";
+    settings.style.display = "none";
+});
+
+backButtons[3].addEventListener('click', function () {
+    playBGM("./assets/MainMenu-bgm.mp3");
+    menu.style.display = "flex";
+    credits.style.display = "none";
+});
 
 // Event listener sur les boutton pour ajouter un effet sonore
 for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", function () {
-        playAudio("/assets/bip.mp3");
+        playAudio("./assets/bip.mp3");
     });
 }
 
-// Fonction permettant de cloner un boutton back sur les différents menus
-function addMainMenuB(element) {
-    let button = backButton1.cloneNode(true);
-    button.addEventListener('click', function () {
-        playBGM("/assets/MainMenu-bgm.mp3");
-        menu.style.display = "flex";
-        element.style.display = "none";
-    });
-    element.childNodes[1].appendChild(button);
-}
-
 // Clonage du boutton sur les différents menus
-addMainMenuB(levels);
-addMainMenuB(guide);
-addMainMenuB(credits);
-
-// Clonage du boutton sur les différents menus
-playAudio("/assets/MainMenu-bgm.mp3");
+playBGM("./assets/MainMenu-bgm.mp3");
 
 // Dessine la grille du menu
 showMenu();
@@ -793,4 +796,4 @@ document.addEventListener('keyup', function (evt) {
 */
 
 
-// Fin du code (ligne 796)
+// Fin du code (ligne 800)
