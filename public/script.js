@@ -225,9 +225,11 @@ class Food {
                 if (part.x === this.position.x && part.y === this.position.y) status = false;
             }
 
-            if (walls.length > 0) {
-                for (const wall of walls) {
-                    if (wall.x === this.position.x && wall.y === this.position.y) status = false;
+            if(gamemode != "normal"){
+                if (walls.length > 0) {
+                    for (const wall of walls) {
+                        if (wall.x === this.position.x && wall.y === this.position.y) status = false;
+                    }
                 }
             }
         } while (!status);
