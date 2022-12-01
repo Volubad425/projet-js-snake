@@ -276,9 +276,9 @@ class Wall {
 
     // Dessin sur le canvas
     draw() {
-        ctx.shadowColor = "blue";
+        ctx.shadowColor = "purple";
         ctx.shadowBlur = 20;
-        ctx.fillStyle = "blue";
+        ctx.fillStyle = "purple";
         ctx.fillRect(20 * this.x, 20 * this.y, 20, 20);
         ctx.shadowBlur = 0;
     }
