@@ -50,7 +50,7 @@ body{
     justify-content: center;
 }
 
-.texte{
+.scoreTexte, .highscoreTexte, .goalTexte{
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -65,7 +65,7 @@ body{
     color: black;
 }
 
-#texte {
+#score, #highscore, #goal {
     font-size: 20px;
     text-transform: uppercase;
     margin: 0;
@@ -86,7 +86,7 @@ body{
     margin-top: 5px;
 }
 
-.buttons{
+.buttons, .guideInfo{
     display: flex;
     flex-direction: column;
     width: 40vw;
@@ -129,9 +129,8 @@ button:hover{
     font-size: 20px;
 }
 
-.guide{
+.guide, .levels{
     display: none;
-    flex-direction: column;
     justify-content: center;
 }
 

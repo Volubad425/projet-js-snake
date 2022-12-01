@@ -21,6 +21,10 @@ const settings = document.querySelector(".settings");
 const guide = document.querySelector(".guide");
 const levels = document.querySelector(".levels");
 
+const scoreTexte = document.querySelector(".scoreTexte");
+const highscoreTexte = document.querySelector(".highscoreTexte");
+const goalTexte = document.querySelector(".goalTexte");
+
 const volumeMoins = document.getElementById("volMoins");
 const volumeLevP = document.getElementById("volLevel");
 const volumePlus = document.getElementById("volPlus");
@@ -32,11 +36,16 @@ const settingsButton = document.getElementById("settingsButton");
 const replayButton = document.getElementById("replayButton");
 const MMButton = document.getElementById("MMButton");
 
-
 const changeThemeButton = document.getElementById("theme");
 const themeIcon = document.querySelector(".fa-moon");
 const resetButton = document.getElementById("reset");
 const backButton1 = document.getElementById("backButton");
+
+const level1Button = document.getElementById("level1");
+const level2Button = document.getElementById("level2");
+const level3Button = document.getElementById("level3");
+
+const goalNum = document.getElementById("goal");
 
 const buttons = document.getElementsByTagName("button");
 
@@ -259,7 +268,7 @@ function playBGM(sound) {
     bgm = new Audio(sound);
     bgm.load();
     bgm.loop = true;
-    bgm.volume = 0.4 * volumeLevP.textContent * 0.1;
+    bgm.volume = volumeLevP.textContent * 0.1;
     bgm.play();
 }
 
@@ -357,14 +366,15 @@ async function showMenu() {
 };
 
 function game(jsonLocation) {
+    let goal;
     interface.style.display = "block";
     menu.style.display = "none";
     if (gamemode === "normal")
         playBGM("./assets/normal-bgm.mp3");
     else if (gamemode === "hardcore")
         playBGM("./assets/hardcore-bgm.mp3");
-    else if (gamemode === "aventure")
-        playBGM("./assets/adventure-bgm.mp3");
+    else if (gamemode === "levels")
+        playBGM("./assets/levels-bgm.mp3");
     playing = true;
 
     async function start() {
@@ -377,6 +387,7 @@ function game(jsonLocation) {
                 board = new Board(data.board.width, data.board.height, data.walls);
                 food = new Food(data.food.position, data.food.color, data.food.type)
                 snake = new Snake(data.snake.body, data.snake.speed, data.snake.direction);
+                goal = data.goal;
 
                 if (gamemode != "normal") {
                     walls = [];
@@ -392,7 +403,6 @@ function game(jsonLocation) {
         catch (err) {
             throw err;
         }
-        console.log("test");
 
         function collision() {
             const head = snake.body[0];
@@ -434,7 +444,7 @@ function game(jsonLocation) {
                     ctx.font = "35px Segoe UI Black";
                     ctx.fillText('YOU LOST', 110, 190);
                     ctx.font = "15px Segoe UI Black";
-                    ctx.fillText('Press on REPLAY button to restart', 75, 220);
+                    ctx.fillText('Press on REPLAY button to restart the game or try another challenge', 75, 220);
                     clearInterval(gameInterval);
                     playing = false;
                 }
@@ -450,10 +460,20 @@ function game(jsonLocation) {
                         food.update();
                     }
 
-                    if (gamemode === "hardcore") {
+                    if (gamemode === "hardcore" || gamemode === "levels") {
                         for (let i = 0; i < walls.length; i++) {
                             walls[i].draw();
                         }
+                    }
+
+                    if (score >= goal) {
+                        ctx.fillStyle = "#999999";
+                        ctx.font = "35px Segoe UI Black";
+                        ctx.fillText('YOU WON', 110, 190);
+                        ctx.font = "15px Segoe UI Black";
+                        ctx.fillText('Press on REPLAY button to restart the game or try another challenge', 75, 220);
+                        clearInterval(gameInterval);
+                        playing = false;
                     }
 
                     snake.step();
@@ -465,6 +485,8 @@ function game(jsonLocation) {
 
         score = 0;
         scoretxt[0].textContent = score;
+
+        goalNum.textContent = goal;
 
         if (gamemode == "normal") {
             storage = localStorage.getItem("NASnakeHSnormal");
@@ -485,12 +507,6 @@ function game(jsonLocation) {
         snake.draw();
         food.draw();
         board.draw();
-
-        if (gamemode != "normal") {
-            for (let i = 0; i < walls.length; i++) {
-                walls[i].draw();
-            }
-        }
 
         update(snake.speed);
     };
@@ -522,6 +538,8 @@ function game(jsonLocation) {
 playButton.addEventListener("click", function () {
     bgm.pause();
     gamemode = "normal";
+    highscoreTexte.style.display = "flex";
+    goalTexte.style.display = "none";
     game("./json/normal.json");
 });
 
@@ -529,7 +547,37 @@ playButton.addEventListener("click", function () {
 hardcoreButton.addEventListener("click", function () {
     bgm.pause();
     gamemode = "hardcore";
+    highscoreTexte.style.display = "flex";
+    goalTexte.style.display = "none";
     game("./json/hardcore.json")
+});
+
+// Levels mode
+level1Button.addEventListener("click", function () {
+    bgm.pause();
+    levels.style.display = "none";
+    game("./json/Levels/level1.json");
+});
+
+level2Button.addEventListener("click", function () {
+    bgm.pause();
+    levels.style.display = "none";
+    game("./json/Levels/level2.json");
+});
+
+level3Button.addEventListener("click", function () {
+    bgm.pause();
+    levels.style.display = "none";
+    game("./json/Levels/level3.json");
+});
+
+//Boutons Menu 
+levelsButton.addEventListener('click', function () {
+    menu.style.display = "none";
+    levels.style.display = "flex";
+    highscoreTexte.style.display = "none";
+    goalTexte.style.display = "flex";
+    gamemode = "levels";
 });
 
 settingsButton.addEventListener('click', function () {
@@ -590,6 +638,7 @@ volumeMoins.addEventListener("click", function () {
     if (volumeLevP.textContent > 0)
         volumeLevP.textContent--;
     localStorage.setItem("NASnakevolume", volumeLevP.textContent);
+    bgm.volume = volumeLevP.textContent * 0.1;
 });
 
 volumePlus.addEventListener("click", function () {
@@ -597,6 +646,7 @@ volumePlus.addEventListener("click", function () {
     if (volumeLevP.textContent < 10)
         volumeLevP.textContent++;
     localStorage.setItem("NASnakevolume", volumeLevP.textContent);
+    bgm.volume = volumeLevP.textContent * 0.1;
 });
 
 
@@ -613,7 +663,7 @@ function addMainMenuB(element) {
         menu.style.display = "flex";
         element.style.display = "none";
     });
-    element.appendChild(button);
+    element.childNodes[1].appendChild(button);
 }
 
 addMainMenuB(levels);

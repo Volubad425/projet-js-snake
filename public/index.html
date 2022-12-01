@@ -23,45 +23,51 @@
     </div>
 
     <div class="levels">
-        <button id="level1">Level 1</button>
+        <div class="buttons">
+            <button id="level1">Level 1</button>
+            <button id="level2">Level 2</button>
+            <button id="level3">Level 3</button>
+        </div>
     </div>
 
     <div class="guide">
-        <div>
-            <img src="/assets/snake-body.png">
-            <p>This is you !</p>
-        </div>
-        <div>
-            <i class="fa fa-arrow-up"></i>
-            <p>Press the up keyboard arrow to change the direction of the snake upwards</p>
-        </div>
-        <div>
-            <i class="fa fa-arrow-down"></i>
-            <p>Press the down keyboard arrow to change the direction of the snake upwards</p>
-        </div>
-        <div>
-            <i class="fa fa-arrow-left"></i>
-            <p>Press the left keyboard arrow to change the direction of the snake to the left</p>
-        </div>
-        <div>
-            <i class="fa fa-arrow-right"></i>
-            <p>Press the right keyboard arrow to change the direction of the snake to the right</p>
-        </div>
-        <div>
-            <img src="/assets/red-fruit.png">
-            <p>Eating a red fruit increases your score by one point</p>
-        </div>
-        <div>
-            <img src="/assets/green-fruit.png">
-            <p>Eating a green fruit increases your score by two points and slow down the snake</p>
-        </div>
-        <div>
-            <img src="/assets/orange-fruit.png" width="20" height="20">
-            <p>Eating an orange fruit increases your score by three point and speed up the snake</p>
-        </div>
-        <div>
-            <img src="/assets/wall.png">
-            <p>Hitting a wall or your own body will make you lose the game</p>
+        <div class="guideInfo">
+            <div>
+                <img src="./assets/snake-body.png">
+                <p>This is you !</p>
+            </div>
+            <div>
+                <i class="fa fa-arrow-up"></i>
+                <p>Press the up keyboard arrow to change the direction of the snake upwards</p>
+            </div>
+            <div>
+                <i class="fa fa-arrow-down"></i>
+                <p>Press the down keyboard arrow to change the direction of the snake upwards</p>
+            </div>
+            <div>
+                <i class="fa fa-arrow-left"></i>
+                <p>Press the left keyboard arrow to change the direction of the snake to the left</p>
+            </div>
+            <div>
+                <i class="fa fa-arrow-right"></i>
+                <p>Press the right keyboard arrow to change the direction of the snake to the right</p>
+            </div>
+            <div>
+                <img src="./assets/red-fruit.png">
+                <p>Eating a red fruit increases your score by one point</p>
+            </div>
+            <div>
+                <img src="./assets/green-fruit.png">
+                <p>Eating a green fruit increases your score by two points and slow down the snake</p>
+            </div>
+            <div>
+                <img src="./assets/orange-fruit.png" width="20" height="20">
+                <p>Eating an orange fruit increases your score by three point and speed up the snake</p>
+            </div>
+            <div>
+                <img src="./assets/wall.png">
+                <p>Hitting a wall or your own body will make you lose the game</p>
+            </div>
         </div>
     </div>
 
@@ -81,8 +87,8 @@
 
     <div class="interface">
         <div class="content">
-            <div class="texte">
-                <p id="texte">Score</p>
+            <div class="scoreTexte">
+                <p id="score">Score</p>
                 <p class="score"></p>
             </div>
             <div class="game">
@@ -90,10 +96,15 @@
                 <button id="replayButton"><i class="fa fa-play"></i> Replay</button>
                 <button id="MMButton"><i class="fa fa-bars"></i> Back to Main Menu</button>
             </div>
-            <div class="texte">
-                <p id="texte">Highscore</p>
+            <div class="highscoreTexte">
+                <p id="highscore">Highscore</p>
                 <p class="score"></p>
             </div>
+            <div class="goalTexte">
+                <p id="goal">Highscore</p>
+                <p class="score"></p>
+            </div>
+
         </div>
     </div>
     <script src="script.js"></script>
