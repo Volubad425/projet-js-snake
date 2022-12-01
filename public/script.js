@@ -6,7 +6,7 @@ let board, food, snake, walls, goal, remaining;
 let score, highscore = 0, menuInterval, gameInterval, playing = false, gamemode;
 
 // Musique de fond
-let bgm = new Audio();
+const bgm = document.getElementById("bgm");
 
 // Canvas de l'interface de jeu
 const canvas = document.getElementById("snake");
@@ -305,7 +305,7 @@ class Board {
 // Musique de fond
 function playBGM(sound) {
     bgm.pause();
-    bgm = new Audio(sound);
+    bgm.src = sound;
     bgm.load();
     bgm.loop = true;
     bgm.volume = volumeLevP.textContent * 0.1;
@@ -754,12 +754,6 @@ for (let i = 0; i < buttons.length; i++) {
         playAudio("./assets/bip.mp3");
     });
 }
-
-// Clonage du boutton sur les différents menus
-playBGM("./assets/MainMenu-bgm.mp3");
-
-// Dessine la grille du menu
-showMenu();
 
 // Events listener sur les touches haut, bas, gauche, droite permettant de changer la position du serpent
 document.addEventListener('keyup', function (evt) {

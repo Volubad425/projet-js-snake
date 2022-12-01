@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <audio id="bgm" src="./assets/MainMenu-bgm.mp3" autoplay loop></audio>
     <title>Snake the Game</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="styles.css">
@@ -10,7 +11,7 @@
     <link rel="icon" type="image/x-png" href="./assets/snake.ico">
 </head>
 
-<body>
+<body onload="showMenu(); bgm.play();">
     <div class="mainMenu">
         <canvas id="draw" width="920" height="360"></canvas>
         <div class="buttons">
@@ -141,7 +142,7 @@
 
         </div>
     </div>
-    <script src="script.js"></script>
+    <script type="text/javascript" src="script.js"></script>
 </body>
 
 </html>
