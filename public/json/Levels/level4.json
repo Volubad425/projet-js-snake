@@ -5,14 +5,14 @@
     },
 
     "food": {
-        "position": { "x": 14, "y": 9 },
+        "position": { "x": 14, "y": 10 },
         "color": "red",
         "type": null
     },
     
     "snake": {
-        "body": [ { "x": 5, "y": 9 }, { "x": 4, "y": 9 } ],
-        "speed": 300,
+        "body": [ { "x": 8, "y": 9 }, { "x": 7, "y": 9 }, { "x": 6, "y": 9 }, { "x": 5, "y": 9 }, { "x": 4, "y": 9 } ],
+        "speed": 75,
         "direction": "DROITE"
     },
 

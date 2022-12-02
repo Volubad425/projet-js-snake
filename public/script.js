@@ -1,3 +1,7 @@
+//Note pour l'examinateur
+let note = "A cause d'un blocage effectué par les navigateurs, la musique de fond du menu principal ne s'éxecute pas en arrivant sur celui-ci.\nCette musique se lancera ensuite normalement après avoir cliqué sur n'importe quel bouton.";
+console.log(note);
+
 // Variables relatives au jeu
 let theme, storage;
 
@@ -26,7 +30,6 @@ const credits = document.querySelector(".credits"); // Crédits
 
 // Liste des textes de score (3)
 const scoretxt = document.getElementsByClassName("score"); // Valeur score
-const scoreTexte = document.querySelector(".scoreTexte"); // "Score"
 const highscoreTexte = document.querySelector(".highscoreTexte"); // "Highscore"
 const goalTexte = document.querySelector(".goalTexte"); // "Remaining"
 
@@ -86,6 +89,7 @@ else {
     volumeLevP.textContent = "10";
 }
 
+
 // Classe relative au serpent
 class Snake {
     // Constructeur
@@ -142,12 +146,12 @@ class Snake {
             if (food.type === "SPEEDUP") {
                 score += 2;
                 if(gamemode === "levels") remaining -= 2;
-                this.speed /= 1.5;
+                this.speed /= 1.3;
             }
             else if (food.type === "SPEEDDOWN") {
                 score++;
                 if(gamemode === "levels") remaining--;
-                this.speed *= 1.4;
+                this.speed *= 1.2;
             }
             score++;
             scoretxt[0].textContent = score;
@@ -702,7 +706,6 @@ resetButton.addEventListener('click', function () {
 
 // Event listener sur le boutton volume - pour baisser le volume
 volumeMoins.addEventListener("click", function () {
-    console.log(volumeLevP.textContent);
     if (volumeLevP.textContent > 0)
         volumeLevP.textContent--;
     localStorage.setItem("NASnakevolume", volumeLevP.textContent);
@@ -711,7 +714,6 @@ volumeMoins.addEventListener("click", function () {
 
 // Event listener sur le boutton volume + pour monter le volume
 volumePlus.addEventListener("click", function () {
-    console.log(volumeLevP.textContent);
     if (volumeLevP.textContent < 10)
         volumeLevP.textContent++;
     localStorage.setItem("NASnakevolume", volumeLevP.textContent);
