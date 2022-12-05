@@ -760,7 +760,7 @@ for (let i = 0; i < buttons.length; i++) {
 }
 
 // Events listener sur les touches haut, bas, gauche, droite permettant de changer la position du serpent
-document.addEventListener('keyup', function (evt) {
+document.addEventListener('keydown', function (evt) {
     evt.preventDefault();
     switch (evt.key) {
         case "ArrowDown":
@@ -794,4 +794,4 @@ document.addEventListener('keyup', function (evt) {
 */
 
 
-// Fin du code (ligne 800)
+// Fin du code (ligne 797)
